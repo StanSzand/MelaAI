@@ -122,14 +122,14 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
                     content: answer + " - This channel / command is meant for VC, join a vc first retard."
                 })
             }
-        // }else{
+         }else{
         //     if(message.content.startsWith("What are you doing right now?")){
         //         await sendImageGenerated(message, response.data.choices[0].text)
         //     }else{
-        //     message.reply({
-        //         content: answer
+             message.reply({
+                 content: answer
         
-        //         })
+                 })
         //     }
         // }
     }

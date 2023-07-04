@@ -131,13 +131,14 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
                 content: answer + " - This channel / command is meant for VC, join a vc first retard."
             });
         }
-        // }else{
+    }
+    else {
         //     if(message.content.startsWith("What are you doing right now?")){
         //         await sendImageGenerated(message, response.data.choices[0].text)
         //     }else{
-        //     message.reply({
-        //         content: answer
-        //         })
+        message.reply({
+            content: answer
+        });
         //     }
         // }
     }
