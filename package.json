@@ -13,7 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.9.0",
-    "@discordjs/voice": "^0.15.0",
     "@google-cloud/text-to-speech": "^4.2.1",
     "bancho.js": "^0.11.0",
     "chai": "^4.3.7",

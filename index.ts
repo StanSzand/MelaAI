@@ -1,4 +1,4 @@
-import { createAudioPlayer } from '@discordjs/voice'
+//import { createAudioPlayer } from '@discordjs/voice'
 import DiscordJS, { Client, EmbedBuilder, GatewayIntentBits, Guild } from 'discord.js'
 import dotenv from 'dotenv'
 import { SynthesisServiceType } from 'microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common.speech/SynthesizerConfig'
@@ -29,50 +29,50 @@ const client = new DiscordJS.Client({
 
 
 
-function talk(text: string, message: any){
-    var sdk = require("microsoft-cognitiveservices-speech-sdk");
-    var readline = require("readline");
+// function talk(text: string, message: any){
+//     var sdk = require("microsoft-cognitiveservices-speech-sdk");
+//     var readline = require("readline");
 
-    var audioFile = "audiofile.wav";
-    // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-    const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.AZURETOKEN, process.env.AZUREREGION);
-    speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm
-    const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
-    // The language of the voice that speaks.
+//     var audioFile = "audiofile.wav";
+//     // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+//     const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.AZURETOKEN, process.env.AZUREREGION);
+//     speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm
+//     const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
+//     // The language of the voice that speaks.
 
 
-    var speechSynthesisVoiceName  = "en-US-JaneNeural";  
+//     var speechSynthesisVoiceName  = "en-US-JaneNeural";  
 
-    var ssml = `<speak version='1.0' xml:lang='en-US' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts'> \r\n \
-        <voice name='${speechSynthesisVoiceName}'> \r\n \
-            <prosody pitch="15%" rate="10%">\r\n \
-            ${text} \r\n \
-            </prosody>\r\n \
-        </voice> \r\n \
-    </speak>`;
+//     var ssml = `<speak version='1.0' xml:lang='en-US' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts'> \r\n \
+//         <voice name='${speechSynthesisVoiceName}'> \r\n \
+//             <prosody pitch="15%" rate="10%">\r\n \
+//             ${text} \r\n \
+//             </prosody>\r\n \
+//         </voice> \r\n \
+//     </speak>`;
     
-    var speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+//     var speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
 
-    console.log(`SSML to synthesize: \r\n ${ssml}`)
-    console.log(`Synthesize to: ${audioFile}`);
-    speechSynthesizer.speakSsmlAsync(ssml,
-        function (result: { reason: any; errorDetails: string }) {
-      if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-        console.log("SynthesizingAudioCompleted result");
-      } else {
-        console.error("Speech synthesis canceled, " + result.errorDetails +
-            "\nDid you set the speech resource key and region values?");
-      }
-      speechSynthesizer.close();
-      speechSynthesizer = null;
-    },
-        function (err: string) {
-      console.trace("err - " + err);
-      speechSynthesizer.close();
-      speechSynthesizer = null;
-    });
-    playAudio(text, message)
-}
+//     console.log(`SSML to synthesize: \r\n ${ssml}`)
+//     console.log(`Synthesize to: ${audioFile}`);
+//     speechSynthesizer.speakSsmlAsync(ssml,
+//         function (result: { reason: any; errorDetails: string }) {
+//       if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+//         console.log("SynthesizingAudioCompleted result");
+//       } else {
+//         console.error("Speech synthesis canceled, " + result.errorDetails +
+//             "\nDid you set the speech resource key and region values?");
+//       }
+//       speechSynthesizer.close();
+//       speechSynthesizer = null;
+//     },
+//         function (err: string) {
+//       console.trace("err - " + err);
+//       speechSynthesizer.close();
+//       speechSynthesizer = null;
+//     });
+//     playAudio(text, message)
+// }
 
 
 
@@ -118,7 +118,7 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
         history.push(answer)
         if (voice){
             if (message.member.voice.channelId != null){
-                talk(answer, message)
+                //talk(answer, message)
             }else{
                 message.reply({
                     content: answer + " - This channel / command is meant for VC, join a vc first retard."
@@ -162,7 +162,7 @@ const askQuestionGpt = async (message: any, req: string, voice: boolean) => {
         console.log(answer)
         if (voice){
             if (message.member.voice.channelId != null){
-                talk(answer, message)
+                //talk(answer, message)
             }else{
                 message.reply({
                     content: answer
@@ -205,90 +205,90 @@ function createPrompt(message: string, history: any){
 
 //join Voice channel
 
-const voiceDiscord = require('@discordjs/voice')
-const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice')
+// const voiceDiscord = require('@discordjs/voice')
+// const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice')
 
-function joinVc(message: any){
-    const channel = message.member.voice.channel
+// function joinVc(message: any){
+//     const channel = message.member.voice.channel
     
-    const connection = voiceDiscord.joinVoiceChannel({
-        channelId: channel.id,
-        guildId: message.guildId,
-        adapterCreator: channel.guild.voiceAdapterCreator
-    })
-    console.log("Created voice connection")
+//     const connection = voiceDiscord.joinVoiceChannel({
+//         channelId: channel.id,
+//         guildId: message.guildId,
+//         adapterCreator: channel.guild.voiceAdapterCreator
+//     })
+//     console.log("Created voice connection")
 
 
-        connection.subscribe(player)
+//         connection.subscribe(player)
     
-    return connection
+//     return connection
     
-}
+// }
 
 //play Audio
-const player = createAudioPlayer()
+//const player = createAudioPlayer()
 
 
 
 
-function playAudio(text: string, message: any){
-    //exportMP3(text)
+// function playAudio(text: string, message: any){
+//     //exportMP3(text)
         
-    setTimeout(function(){
-        var resource = createAudioResource('C:\\Users\\Stan\\Documents\\Scripts\\Porkchop\\audiofile.wav', {
-            inlineVolume: true,
-        })
-        console.log("Created resource")
+//     setTimeout(function(){
+//         var resource = createAudioResource('C:\\Users\\Stan\\Documents\\Scripts\\Porkchop\\audiofile.wav', {
+//             inlineVolume: true,
+//         })
+//         console.log("Created resource")
     
-        const connection = joinVc(message)
-        connection.subscribe(player)
+//         const connection = joinVc(message)
+//         connection.subscribe(player)
             
-        resource.volume.setVolume(1)
+//         resource.volume.setVolume(1)
     
-        player.on(AudioPlayerStatus.Playing, () => {
-            console.log("Audio started playing")
-            });
+//         player.on(AudioPlayerStatus.Playing, () => {
+//             console.log("Audio started playing")
+//             });
     
-        player.play(resource)
-        player.on('error', error => {
-                console.error(error);
-        }) 
-        player.off
-    }, 3000);
-    player.off
+//         player.play(resource)
+//         player.on('error', error => {
+//                 console.error(error);
+//         }) 
+//         player.off
+//     }, 3000);
+//     player.off
     
     
-}
+// }
 
 
-function playSong(message: any){
-    //exportMP3(text)
+// function playSong(message: any){
+//     //exportMP3(text)
         
-    setTimeout(function(){
-        var resource = createAudioResource('C:\\Users\\Stan\\Documents\\Scripts\\Porkchop\\audiofile.wav', {
-            inlineVolume: true,
-        })
-        console.log("Created resource")
+//     setTimeout(function(){
+//         var resource = createAudioResource('C:\\Users\\Stan\\Documents\\Scripts\\Porkchop\\audiofile.wav', {
+//             inlineVolume: true,
+//         })
+//         console.log("Created resource")
     
-        const connection = joinVc(message)
-        connection.subscribe(player)
+//         const connection = joinVc(message)
+//         connection.subscribe(player)
             
-        resource.volume.setVolume(1)
+//         resource.volume.setVolume(1)
     
-        player.on(AudioPlayerStatus.Playing, () => {
-            console.log("Audio started playing")
-            });
+//         player.on(AudioPlayerStatus.Playing, () => {
+//             console.log("Audio started playing")
+//             });
     
-        player.play(resource)
-        player.on('error', error => {
-                console.error(error);
-        }) 
-        player.off
-    }, 3000);
+//         player.play(resource)
+//         player.on('error', error => {
+//                 console.error(error);
+//         }) 
+//         player.off
+//     }, 3000);
 
     
     
-}
+// }
 
 //text to mp3
 
@@ -345,7 +345,7 @@ function runCommand(message: any, command: string){
     }
     else if (command === 'join'){
         if (message.member.voice.channelId != null){
-            joinVc(message)
+            //joinVc(message)
         }else{
             message.reply({
                 content: 'nigga, at least join a vc first'
@@ -362,7 +362,7 @@ function runCommand(message: any, command: string){
         console.log(question)
         askQuestionGpt(message, question, true)
     }else if (command.startsWith('play')){
-        playSong(message)
+        //playSong(message)
     }
     return null
 }
