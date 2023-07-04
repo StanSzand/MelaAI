@@ -31,7 +31,8 @@
     "opus": "^0.0.0",
     "say": "^0.16.0",
     "sharp": "^0.32.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "python": "^3.6.0"
   },
   "compilerOptions": {
     "lib": [
