@@ -2,7 +2,6 @@
 import DiscordJS, { Client, EmbedBuilder, GatewayIntentBits, Guild } from 'discord.js'
 import dotenv from 'dotenv'
 import { SynthesisServiceType } from 'microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common.speech/SynthesizerConfig'
-import StableDiffusionApi from "stable-diffusion-api"
 
 dotenv.config()
 
@@ -101,7 +100,6 @@ const openai = new OpenAIApi(configuration)
 const askGpt = async (message: any, req: string, voice: boolean) => {
     var prompt = createPrompt(req, history)
     var answer = ''
-    try{
     const response = await openai.createCompletion({
             model: "text-babbage-001",
             prompt: prompt,
@@ -124,21 +122,16 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
                     content: answer + " - This channel / command is meant for VC, join a vc first retard."
                 })
             }
-        }else{
-            if(message.content.startsWith("What are you doing right now?")){
-                await sendImageGenerated(message, response.data.choices[0].text)
-            }else{
-            message.reply({
-                content: answer
+        // }else{
+        //     if(message.content.startsWith("What are you doing right now?")){
+        //         await sendImageGenerated(message, response.data.choices[0].text)
+        //     }else{
+        //     message.reply({
+        //         content: answer
         
-                })
-            }
-        }
-        
-        
-        
-    }catch(error){
-        console.log(error)
+        //         })
+        //     }
+        // }
     }
 }
 
@@ -414,15 +407,15 @@ client.on('messageCreate', (message) =>{
         
         if(message.content.startsWith('Can you show me what you look like?')){
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes")
-            sendImageNormal(message, prompt)
+            //sendImageNormal(message, prompt)
         }else if(message.content.startsWith('Can you show me')){
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
             prompt += message.content
-            sendImageNormal(message, prompt)
+            //sendImageNormal(message, prompt)
         }else if(message.content.startsWith('Can you generate')){
             var prompt = message.content.replace("Can you generate", "")
             prompt += message.content
-            sendImageNormal(message, prompt)
+            //sendImageNormal(message, prompt)
         }
         else{
             var question = message.content
@@ -434,16 +427,16 @@ client.on('messageCreate', (message) =>{
     }else if(message.channelId=='1123703366040690850'){ //TEXT private
         if(message.content.startsWith('Can you show me what you look like?')){
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes")
-            sendImageNormal(message, prompt)
+            //sendImageNormal(message, prompt)
             }
         else if(message.content.startsWith('Can you show me')){
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
             prompt += message.content
-            sendImageNormal(message, prompt)
+            //sendImageNormal(message, prompt)
         }else if(message.content.startsWith('Can you generate')){
             var prompt = message.content.replace("Can you generate", "")
             prompt += message.content
-            sendImageNormal(message, prompt)
+            //sendImageNormal(message, prompt)
         }else{
             var question = message.content
             askGpt(message, question, false)}
@@ -463,73 +456,73 @@ client.login(process.env.TOKEN)
         }*/
 
 
-async function stableDiffusion(prompt:string){
-    const api = new StableDiffusionApi({
-        baseUrl: "http://127.0.0.1:7861",
-        defaultStepCount: 10,
-    });
+// async function stableDiffusion(prompt:string){
+//     const api = new StableDiffusionApi({
+//         baseUrl: "http://127.0.0.1:7861",
+//         defaultStepCount: 10,
+//     });
     
-    const result = await api.txt2img({
-        prompt: "amazing, masterpiece, " + prompt,
-        sampler_name: "DDIM",
-        negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
-        width: 512,
-        height: 768,
-        cfg_scale: 7.0
-        //enable_hr: true,
-        //hr_scale: 2,
-        //denoising_strength: 0.55
+//     const result = await api.txt2img({
+//         prompt: "amazing, masterpiece, " + prompt,
+//         sampler_name: "DDIM",
+//         negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
+//         width: 512,
+//         height: 768,
+//         cfg_scale: 7.0
+//         //enable_hr: true,
+//         //hr_scale: 2,
+//         //denoising_strength: 0.55
     
-    })
-    result.image.toFile('Aiimage.png')
+//     })
+//     result.image.toFile('Aiimage.png')
 
-}
-
-
-
-async function sendImageNormal(message:any, prompt:string){
-    message.channel.sendTyping()
-    try{
-        await stableDiffusion(prompt)
-        setTimeout(function(){
-            message.reply({
-                content: 'Sure!',
-                files: [{ attachment: "Aiimage.png" }]
-            })
-        }, 1000)
-    }  catch(error){
-        if(stablediff){
-            message.reply({
-                content: 'An unexpected error occured'
-            })
-        }else{
-            message.reply({
-                content: 'Image Generation is curently off'
-            })
-        }
-    }
-}
+// }
 
 
-async function sendImageGenerated(message:any, prompt:string){
 
-    try{
-    await stableDiffusion("(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, " + prompt)
-    setTimeout(function(){
-        message.reply({
-            content: prompt,
-            files: [{ attachment: "Aiimage.png" }]
-        })
-    }, 1000)
-    }catch(error){
-        if(stablediff){
-            message.reply({
-                content: 'An unexpected error occured'
-            })
-        }else{
-            message.reply({
-                content: 'Image Generation is curently off'
-            })
-        }
-    }
-}
+// async function sendImageNormal(message:any, prompt:string){
+//     message.channel.sendTyping()
+//     try{
+//         await stableDiffusion(prompt)
+//         setTimeout(function(){
+//             message.reply({
+//                 content: 'Sure!',
+//                 files: [{ attachment: "Aiimage.png" }]
+//             })
+//         }, 1000)
+//     }  catch(error){
+//         if(stablediff){
+//             message.reply({
+//                 content: 'An unexpected error occured'
+//             })
+//         }else{
+//             message.reply({
+//                 content: 'Image Generation is curently off'
+//             })
+//         }
+//     }
+// }
+
+
+// async function sendImageGenerated(message:any, prompt:string){
+
+//     try{
+//     await stableDiffusion("(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, " + prompt)
+//     setTimeout(function(){
+//         message.reply({
+//             content: prompt,
+//             files: [{ attachment: "Aiimage.png" }]
+//         })
+//     }, 1000)
+//     }catch(error){
+//         if(stablediff){
+//             message.reply({
+//                 content: 'An unexpected error occured'
+//             })
+//         }else{
+//             message.reply({
+//                 content: 'Image Generation is curently off'
+//             })
+//         }
+//     }
+// }

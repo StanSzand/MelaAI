@@ -38,7 +38,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //import { createAudioPlayer } from '@discordjs/voice'
 const discord_js_1 = __importStar(require("discord.js"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const stable_diffusion_api_1 = __importDefault(require("stable-diffusion-api"));
 dotenv_1.default.config();
 var working = false;
 var stablediff = false;
@@ -109,44 +108,38 @@ const openai = new OpenAIApi(configuration);
 const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, function* () {
     var prompt = createPrompt(req, history);
     var answer = '';
-    try {
-        const response = yield openai.createCompletion({
-            model: "text-babbage-001",
-            prompt: prompt,
-            temperature: 1,
-            max_tokens: 256 * 2,
-            top_p: 0.9,
-            frequency_penalty: 1,
-            presence_penalty: 1,
-            stop: ["Human:", "AI:"]
-        });
-        console.log(prompt);
-        answer = response.data.choices[0].text;
-        console.log(answer);
-        history.push(answer);
-        if (voice) {
-            if (message.member.voice.channelId != null) {
-                //talk(answer, message)
-            }
-            else {
-                message.reply({
-                    content: answer + " - This channel / command is meant for VC, join a vc first retard."
-                });
-            }
+    const response = yield openai.createCompletion({
+        model: "text-babbage-001",
+        prompt: prompt,
+        temperature: 1,
+        max_tokens: 256 * 2,
+        top_p: 0.9,
+        frequency_penalty: 1,
+        presence_penalty: 1,
+        stop: ["Human:", "AI:"]
+    });
+    console.log(prompt);
+    answer = response.data.choices[0].text;
+    console.log(answer);
+    history.push(answer);
+    if (voice) {
+        if (message.member.voice.channelId != null) {
+            //talk(answer, message)
         }
         else {
-            if (message.content.startsWith("What are you doing right now?")) {
-                yield sendImageGenerated(message, response.data.choices[0].text);
-            }
-            else {
-                message.reply({
-                    content: answer
-                });
-            }
+            message.reply({
+                content: answer + " - This channel / command is meant for VC, join a vc first retard."
+            });
         }
-    }
-    catch (error) {
-        console.log(error);
+        // }else{
+        //     if(message.content.startsWith("What are you doing right now?")){
+        //         await sendImageGenerated(message, response.data.choices[0].text)
+        //     }else{
+        //     message.reply({
+        //         content: answer
+        //         })
+        //     }
+        // }
     }
 });
 const askQuestionGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, function* () {
@@ -372,17 +365,17 @@ client.on('messageCreate', (message) => {
     else if (message.channelId == '1123752426218987601') { //TEXT kck
         if (message.content.startsWith('Can you show me what you look like?')) {
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes");
-            sendImageNormal(message, prompt);
+            //sendImageNormal(message, prompt)
         }
         else if (message.content.startsWith('Can you show me')) {
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ");
             prompt += message.content;
-            sendImageNormal(message, prompt);
+            //sendImageNormal(message, prompt)
         }
         else if (message.content.startsWith('Can you generate')) {
             var prompt = message.content.replace("Can you generate", "");
             prompt += message.content;
-            sendImageNormal(message, prompt);
+            //sendImageNormal(message, prompt)
         }
         else {
             var question = message.content;
@@ -396,17 +389,17 @@ client.on('messageCreate', (message) => {
     else if (message.channelId == '1123703366040690850') { //TEXT private
         if (message.content.startsWith('Can you show me what you look like?')) {
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes");
-            sendImageNormal(message, prompt);
+            //sendImageNormal(message, prompt)
         }
         else if (message.content.startsWith('Can you show me')) {
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ");
             prompt += message.content;
-            sendImageNormal(message, prompt);
+            //sendImageNormal(message, prompt)
         }
         else if (message.content.startsWith('Can you generate')) {
             var prompt = message.content.replace("Can you generate", "");
             prompt += message.content;
-            sendImageNormal(message, prompt);
+            //sendImageNormal(message, prompt)
         }
         else {
             var question = message.content;
@@ -421,74 +414,64 @@ client.login(process.env.TOKEN);
             })
             return
         }*/
-function stableDiffusion(prompt) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const api = new stable_diffusion_api_1.default({
-            baseUrl: "http://127.0.0.1:7861",
-            defaultStepCount: 10,
-        });
-        const result = yield api.txt2img({
-            prompt: "amazing, masterpiece, " + prompt,
-            sampler_name: "DDIM",
-            negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
-            width: 512,
-            height: 768,
-            cfg_scale: 7.0
-            //enable_hr: true,
-            //hr_scale: 2,
-            //denoising_strength: 0.55
-        });
-        result.image.toFile('Aiimage.png');
-    });
-}
-function sendImageNormal(message, prompt) {
-    return __awaiter(this, void 0, void 0, function* () {
-        message.channel.sendTyping();
-        try {
-            yield stableDiffusion(prompt);
-            setTimeout(function () {
-                message.reply({
-                    content: 'Sure!',
-                    files: [{ attachment: "Aiimage.png" }]
-                });
-            }, 1000);
-        }
-        catch (error) {
-            if (stablediff) {
-                message.reply({
-                    content: 'An unexpected error occured'
-                });
-            }
-            else {
-                message.reply({
-                    content: 'Image Generation is curently off'
-                });
-            }
-        }
-    });
-}
-function sendImageGenerated(message, prompt) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield stableDiffusion("(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, " + prompt);
-            setTimeout(function () {
-                message.reply({
-                    content: prompt,
-                    files: [{ attachment: "Aiimage.png" }]
-                });
-            }, 1000);
-        }
-        catch (error) {
-            if (stablediff) {
-                message.reply({
-                    content: 'An unexpected error occured'
-                });
-            }
-            else {
-                message.reply({
-                    content: 'Image Generation is curently off'
-                });
-            }
-        }
-    });
-}
+// async function stableDiffusion(prompt:string){
+//     const api = new StableDiffusionApi({
+//         baseUrl: "http://127.0.0.1:7861",
+//         defaultStepCount: 10,
+//     });
+//     const result = await api.txt2img({
+//         prompt: "amazing, masterpiece, " + prompt,
+//         sampler_name: "DDIM",
+//         negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
+//         width: 512,
+//         height: 768,
+//         cfg_scale: 7.0
+//         //enable_hr: true,
+//         //hr_scale: 2,
+//         //denoising_strength: 0.55
+//     })
+//     result.image.toFile('Aiimage.png')
+// }
+// async function sendImageNormal(message:any, prompt:string){
+//     message.channel.sendTyping()
+//     try{
+//         await stableDiffusion(prompt)
+//         setTimeout(function(){
+//             message.reply({
+//                 content: 'Sure!',
+//                 files: [{ attachment: "Aiimage.png" }]
+//             })
+//         }, 1000)
+//     }  catch(error){
+//         if(stablediff){
+//             message.reply({
+//                 content: 'An unexpected error occured'
+//             })
+//         }else{
+//             message.reply({
+//                 content: 'Image Generation is curently off'
+//             })
+//         }
+//     }
+// }
+// async function sendImageGenerated(message:any, prompt:string){
+//     try{
+//     await stableDiffusion("(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, " + prompt)
+//     setTimeout(function(){
+//         message.reply({
+//             content: prompt,
+//             files: [{ attachment: "Aiimage.png" }]
+//         })
+//     }, 1000)
+//     }catch(error){
+//         if(stablediff){
+//             message.reply({
+//                 content: 'An unexpected error occured'
+//             })
+//         }else{
+//             message.reply({
+//                 content: 'Image Generation is curently off'
+//             })
+//         }
+//     }
+// }
