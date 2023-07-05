@@ -98,7 +98,13 @@ resetAI()
 const openai = new OpenAIApi(configuration)
 
 const askGpt = async (message: any, req: string, voice: boolean) => {
-    var prompt = createPrompt(req, history)
+    var name = ''
+    if (message.member.nickname != null){
+        name = message.member.nickname
+    } else {
+        name = message.member.displayName.toString()
+    }
+    var prompt = createPrompt(req, history, name)
     var answer = ''
     const response = await openai.createCompletion({
             model: "text-babbage-001",
@@ -106,8 +112,8 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
             temperature: 1,
             max_tokens: 256*2,
             top_p: 0.9,
-            frequency_penalty: 1,
-            presence_penalty: 1,
+            frequency_penalty: 0.2,
+            presence_penalty: 0.5,
             stop: ["Human:", "AI:"]
         })
         console.log(prompt)
@@ -180,15 +186,15 @@ const askQuestionGpt = async (message: any, req: string, voice: boolean) => {
 
 
 
-function updateList(message: string, history: any){
+function updateList(message: string, history: any,){
     history.push(message)
 }
 
 //Creating a prompt by pushing the human propt into an array and returning the array with X items from the back
-function createPrompt(message: string, history: any){
+function createPrompt(message: string, history: any, name: string){
     var p_Message = "\nHuman: " + message
+    var prompt = history[0] + history.slice(count).join('') + p_Message + " - Asked " + name + "\n AI: "
     updateList(p_Message + "\nAI: ", history)
-    var prompt = history[0] + history.slice(count).join('')
     if(count>-32){
         count = count -2
     }
