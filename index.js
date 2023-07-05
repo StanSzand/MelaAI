@@ -105,7 +105,14 @@ function resetAI() {
 resetAI();
 const openai = new OpenAIApi(configuration);
 const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, function* () {
-    var prompt = createPrompt(req, history);
+    var name = '';
+    if (message.member.nickname != null) {
+        name = message.member.nickname;
+    }
+    else {
+        name = message.member.displayName.toString();
+    }
+    var prompt = createPrompt(req, history, name);
     var answer = '';
     const response = yield openai.createCompletion({
         model: "text-babbage-001",
@@ -113,8 +120,8 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
         temperature: 1,
         max_tokens: 256 * 2,
         top_p: 0.9,
-        frequency_penalty: 1,
-        presence_penalty: 1,
+        frequency_penalty: 0.2,
+        presence_penalty: 0.5,
         stop: ["Human:", "AI:"]
     });
     console.log(prompt);
@@ -183,10 +190,10 @@ function updateList(message, history) {
     history.push(message);
 }
 //Creating a prompt by pushing the human propt into an array and returning the array with X items from the back
-function createPrompt(message, history) {
+function createPrompt(message, history, name) {
     var p_Message = "\nHuman: " + message;
+    var prompt = history[0] + history.slice(count).join('') + p_Message + " - Asked " + name + "\n AI: ";
     updateList(p_Message + "\nAI: ", history);
-    var prompt = history[0] + history.slice(count).join('');
     if (count > -32) {
         count = count - 2;
     }
