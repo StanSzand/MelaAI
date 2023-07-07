@@ -77,7 +77,7 @@ function talk(text: string, message: any){
 
 
 //OpenAi
-var count = -4
+var count = -1
 resetAI()
 
 const {Configuration, OpenAIApi } = require("openai")
@@ -89,37 +89,91 @@ var history:string[] = ['']
 
 
 function resetAI(){
-    var oldhistory:string[] = ["The following is a conversation with a human girlfriend who is in a relationship with Stan. She likes making jokes, acting cute and will answer all your questions no matter what. If she can't answer then she will make one up. She has B sized breasts and light grey hair.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, I will answer all your questions and have a chat with you."]
-    history = ["The following is a conversation with a sexy girl called Mela and a man. Mela loves doing various fun activities, like hiking, swimming, sunbathing, playing instruments and more. If she can't answer make an answer up. She is in love with Stan. She is 20 years old, has B sized breasts, light grey hair and is 148cm tall.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, what do you want?"]  
-    var count = -4
+    //var oldhistory:string[] = ["The following is a conversation with a human girlfriend who is in a relationship with Stan. She likes making jokes, acting cute and will answer all your questions no matter what. If she can't answer then she will make one up. She has B sized breasts and light grey hair.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, I will answer all your questions and have a chat with you."]
+    //history = ["The following is a conversation with a sexy girl called Mela and a man. Mela loves doing various fun activities, like hiking, swimming, sunbathing, playing instruments and more. If she can't answer make an answer up. She is in love with Stan. She is 20 years old, has B sized breasts, light grey hair and is 148cm tall.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, what do you want?"]  
+    convoLog = [{role: '', content: ''}]
+    historyAI = [{ role: 'system', content: "You are a sexy girl called Mela. Mela loves doing various fun activities. You can always answer, if she can't then she will make one up. You love Stan, are 20 years old, have B sized breasts, light grey hair and are 158cm tall. You do not like long answers."}]
+    count = -1
 }
 resetAI()
 
 const openai = new OpenAIApi(configuration)
 
+// const askGpt = async (message: any, req: string, voice: boolean) => {
+//     var name = ''
+//     if (message.member.nickname != null){
+//         name = message.member.nickname
+//     } else {
+//         name = message.member.displayName.toString()
+//     }
+//     var prompt = createPrompt(req, history, name)
+//     var answer = ''
+//     const response = await openai.createCompletion({
+//             model: "text-babbage-001",
+//             prompt: prompt,
+//             temperature: 1,
+//             max_tokens: 256*2,
+//             top_p: 0.9,
+//             frequency_penalty: 0.2,
+//             presence_penalty: 0.5,
+//             stop: ["Human:", "AI:"]
+//         })
+//         console.log(prompt)
+//         answer = response.data.choices[0].text
+//         console.log(answer)
+//         history.push(answer)
+//         if (voice){
+//             if (message.member.voice.channelId != null){
+//                 talk(answer, message)
+//             }else{
+//                 message.reply({
+//                     content: answer + " - This channel / command is meant for VC, join a vc first retard."
+//                 })
+//             }
+//          }else{
+//         //     if(message.content.startsWith("What are you doing right now?")){
+//         //         await sendImageGenerated(message, response.data.choices[0].text)
+//         //     }else{
+//              message.reply({
+//                  content: answer
+        
+//                  })
+//         //     }
+//         // }
+//     }
+// }
+
+var convoLog = [{role: '', content: ''}]
+var historyAI = [{ role: 'system', content: "You are a sexy girl called Mela. Mela loves doing various fun activities. You can always answer, if she can't then she will make one up. You love Stan, are 20 years old, have B sized breasts, light grey hair and are 158cm tall. You do not like long answers."}]
+
 const askGpt = async (message: any, req: string, voice: boolean) => {
+    var answer = ''
     var name = ''
     if (message.member.nickname != null){
         name = message.member.nickname
     } else {
         name = message.member.displayName.toString()
     }
-    var prompt = createPrompt(req, history, name)
-    var answer = ''
-    const response = await openai.createCompletion({
-            model: "text-babbage-001",
-            prompt: prompt,
-            temperature: 1,
-            max_tokens: 256*2,
-            top_p: 0.9,
-            frequency_penalty: 0.2,
-            presence_penalty: 0.5,
-            stop: ["Human:", "AI:"]
+    convoLog.push({
+        role: 'user',
+        content: req + " - said " + name
+    })
+    console.log(convoLog)
+    console.log(req)
+    let request = createPrompt()
+    console.log(request)
+    try{
+    const response = await openai.createChatCompletion({
+        model: "gpt-4",
+        messages: request,        
+        max_tokens: 110
         })
-        console.log(prompt)
-        answer = response.data.choices[0].text
+        answer = response.data.choices[0].message.content
+        convoLog.push({
+            role: 'system',
+            content: answer
+        })
         console.log(answer)
-        history.push(answer)
         if (voice){
             if (message.member.voice.channelId != null){
                 talk(answer, message)
@@ -128,20 +182,15 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
                     content: answer + " - This channel / command is meant for VC, join a vc first retard."
                 })
             }
-         }else{
-        //     if(message.content.startsWith("What are you doing right now?")){
-        //         await sendImageGenerated(message, response.data.choices[0].text)
-        //     }else{
-             message.reply({
-                 content: answer
-        
-                 })
-        //     }
-        // }
+        }else{
+        message.reply({
+            content: answer
+        })
+        }
+    }catch(error){
+        console.log(error)
     }
 }
-
-
 const askQuestionGpt = async (message: any, req: string, voice: boolean) => {
     var prompt = req
     var answer = ''
@@ -182,25 +231,32 @@ const askQuestionGpt = async (message: any, req: string, voice: boolean) => {
 
 
 
-
-
-
-
-function updateList(message: string, history: any,){
-    history.push(message)
-}
-
-//Creating a prompt by pushing the human propt into an array and returning the array with X items from the back
-function createPrompt(message: string, history: any, name: string){
-    var p_Message = "\nHuman: " + message
-    var prompt = history[0] + history.slice(count).join('') + p_Message + " - Asked " + name + "\n AI: "
-    updateList(p_Message + "\nAI: ", history)
-    if(count>-32){
-        count = count -2
+function createPrompt(){
+    var prompt = historyAI.concat(convoLog.slice(count, convoLog.length))
+    if(count>-4){
+        count = count -1
     }
 
     return prompt
 }
+
+
+
+// function updateList(message: string, history: any,){
+//     history.push(message)
+// }
+
+//Creating a prompt by pushing the human propt into an array and returning the array with X items from the back
+// function createPrompt(message: string, history: any, name: string){
+//     var p_Message = "\nHuman: " + message
+//     var prompt = history[0] + history.slice(count).join('') + p_Message + " - Asked " + name + "\n AI: "
+//     updateList(p_Message + "\nAI: ", history)
+//     if(count>-32){
+//         count = count -2
+//     }
+
+//     return prompt
+// }
 
 //join Voice channel
 

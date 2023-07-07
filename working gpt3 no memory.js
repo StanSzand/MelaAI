@@ -115,7 +115,7 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
         const response = yield openai.createChatCompletion({
             model: "Wizard-Vicuna-7B-Uncensored.ggmlv3.q2_K.bin",
             messages: convoLog,
-            max_tokens: 128,
+            max_tokens: 64,
         });
         answer = response.data.choices[0].message.content;
         convoLog.push({
