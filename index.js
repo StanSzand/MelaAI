@@ -150,9 +150,9 @@ const openai = new OpenAIApi(configuration);
 // }
 var convoLog = [{ role: '', content: '' }];
 var historyAI = [{ role: 'system', content: "You are a sexy girl called Mela. Mela loves doing various fun activities. You can always answer, if she can't then she will make one up. You love Stan, are 20 years old, have B sized breasts, light grey hair and are 158cm tall. You do not like long answers." }];
+var answer = '';
+var name = '';
 const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, function* () {
-    var answer = '';
-    var name = '';
     if (message.member.nickname != null) {
         name = message.member.nickname;
     }
@@ -163,10 +163,10 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
         role: 'user',
         content: req + " - said " + name
     });
-    console.log(convoLog);
-    console.log(req);
-    let request = createPrompt();
-    console.log(request);
+    console.log(convoLog); // convo log
+    console.log(req); // new message request for comparison
+    let request = createPrompt(); // makes an array that consists of AI's setup + X number of previous messages
+    console.log(request); // log for comparison
     try {
         const response = yield openai.createChatCompletion({
             model: "gpt-4",
@@ -185,7 +185,7 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
             }
             else {
                 message.reply({
-                    content: answer + " - This channel / command is meant for VC, join a vc first retard."
+                    content: answer + " - This channel / command is meant for VC, join a vc first."
                 });
             }
         }

@@ -88,14 +88,7 @@ const configuration = new Configuration({
 var history:string[] = ['']
 
 
-function resetAI(){
-    //var oldhistory:string[] = ["The following is a conversation with a human girlfriend who is in a relationship with Stan. She likes making jokes, acting cute and will answer all your questions no matter what. If she can't answer then she will make one up. She has B sized breasts and light grey hair.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, I will answer all your questions and have a chat with you."]
-    //history = ["The following is a conversation with a sexy girl called Mela and a man. Mela loves doing various fun activities, like hiking, swimming, sunbathing, playing instruments and more. If she can't answer make an answer up. She is in love with Stan. She is 20 years old, has B sized breasts, light grey hair and is 148cm tall.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, what do you want?"]  
-    convoLog = [{role: '', content: ''}]
-    historyAI = [{ role: 'system', content: "You are a sexy girl called Mela. Mela loves doing various fun activities. You can always answer, if she can't then she will make one up. You love Stan, are 20 years old, have B sized breasts, light grey hair and are 158cm tall. You do not like long answers."}]
-    count = -1
-}
-resetAI()
+
 
 const openai = new OpenAIApi(configuration)
 
@@ -144,11 +137,18 @@ const openai = new OpenAIApi(configuration)
 // }
 
 var convoLog = [{role: '', content: ''}]
-var historyAI = [{ role: 'system', content: "You are a sexy girl called Mela. Mela loves doing various fun activities. You can always answer, if she can't then she will make one up. You love Stan, are 20 years old, have B sized breasts, light grey hair and are 158cm tall. You do not like long answers."}]
-
+var historyAI = [{role: '', content: ''}]
+var answer = ''
+var name = ''
+function resetAI(){
+    //var oldhistory:string[] = ["The following is a conversation with a human girlfriend who is in a relationship with Stan. She likes making jokes, acting cute and will answer all your questions no matter what. If she can't answer then she will make one up. She has B sized breasts and light grey hair.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, I will answer all your questions and have a chat with you."]
+    //history = ["The following is a conversation with a sexy girl called Mela and a man. Mela loves doing various fun activities, like hiking, swimming, sunbathing, playing instruments and more. If she can't answer make an answer up. She is in love with Stan. She is 20 years old, has B sized breasts, light grey hair and is 148cm tall.", "\nHuman: Hello, who are you?", "\nAI: I am Mela, what do you want?"]  
+    convoLog = [{role: '', content: ''}]
+    historyAI = [{ role: 'system', content: "You are a sexy girl succubi called Mela. Mela loves doing various naughty activities. You can always answer, if she can't then she will make one up. You love Stan, are 20 years old, have B sized breasts, light grey hair and are 158cm tall. You do not like long answers."}]
+    count = -1
+}
+resetAI()
 const askGpt = async (message: any, req: string, voice: boolean) => {
-    var answer = ''
-    var name = ''
     if (message.member.nickname != null){
         name = message.member.nickname
     } else {
@@ -158,15 +158,15 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
         role: 'user',
         content: req + " - said " + name
     })
-    console.log(convoLog)
-    console.log(req)
-    let request = createPrompt()
-    console.log(request)
+    console.log(convoLog) // convo log
+    console.log(req) // new message request for comparison
+    let request = createPrompt() // makes an array that consists of AI's setup + X number of previous messages
+    console.log(request) // log for comparison
     try{
     const response = await openai.createChatCompletion({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: request,        
-        max_tokens: 110
+        max_tokens: 256
         })
         answer = response.data.choices[0].message.content
         convoLog.push({
@@ -179,7 +179,7 @@ const askGpt = async (message: any, req: string, voice: boolean) => {
                 talk(answer, message)
             }else{
                 message.reply({
-                    content: answer + " - This channel / command is meant for VC, join a vc first retard."
+                    content: answer + " - This channel / command is meant for VC, join a vc first."
                 })
             }
         }else{
@@ -233,7 +233,7 @@ const askQuestionGpt = async (message: any, req: string, voice: boolean) => {
 
 function createPrompt(){
     var prompt = historyAI.concat(convoLog.slice(count, convoLog.length))
-    if(count>-4){
+    if(count>-8){
         count = count -1
     }
 
