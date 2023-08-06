@@ -97,48 +97,6 @@ const configuration = new Configuration({
 });
 var history = [''];
 const openai = new OpenAIApi(configuration);
-// const askGpt = async (message: any, req: string, voice: boolean) => {
-//     var name = ''
-//     if (message.member.nickname != null){
-//         name = message.member.nickname
-//     } else {
-//         name = message.member.displayName.toString()
-//     }
-//     var prompt = createPrompt(req, history, name)
-//     var answer = ''
-//     const response = await openai.createCompletion({
-//             model: "text-babbage-001",
-//             prompt: prompt,
-//             temperature: 1,
-//             max_tokens: 256*2,
-//             top_p: 0.9,
-//             frequency_penalty: 0.2,
-//             presence_penalty: 0.5,
-//             stop: ["Human:", "AI:"]
-//         })
-//         console.log(prompt)
-//         answer = response.data.choices[0].text
-//         console.log(answer)
-//         history.push(answer)
-//         if (voice){
-//             if (message.member.voice.channelId != null){
-//                 talk(answer, message)
-//             }else{
-//                 message.reply({
-//                     content: answer + " - This channel / command is meant for VC, join a vc first retard."
-//                 })
-//             }
-//          }else{
-//         //     if(message.content.startsWith("What are you doing right now?")){
-//         //         await sendImageGenerated(message, response.data.choices[0].text)
-//         //     }else{
-//              message.reply({
-//                  content: answer
-//                  })
-//         //     }
-//         // }
-//     }
-// }
 var convoLog = [{ role: '', content: '' }];
 var historyAI = [{ role: '', content: '' }];
 var answer = '';
@@ -241,19 +199,6 @@ function createPrompt() {
     }
     return prompt;
 }
-// function updateList(message: string, history: any,){
-//     history.push(message)
-// }
-//Creating a prompt by pushing the human propt into an array and returning the array with X items from the back
-// function createPrompt(message: string, history: any, name: string){
-//     var p_Message = "\nHuman: " + message
-//     var prompt = history[0] + history.slice(count).join('') + p_Message + " - Asked " + name + "\n AI: "
-//     updateList(p_Message + "\nAI: ", history)
-//     if(count>-32){
-//         count = count -2
-//     }
-//     return prompt
-// }
 //join Voice channel
 const voiceDiscord = require('@discordjs/voice');
 const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
