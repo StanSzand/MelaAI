@@ -41,7 +41,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const a1111_webui_api_1 = __importDefault(require("a1111-webui-api"));
 dotenv_1.default.config();
 var working = false;
-var stablediff = true;
+var stablediff = false;
 //Discord JS
 const client = new discord_js_1.default.Client({
     intents: [
@@ -286,6 +286,24 @@ function runCommand(message, command) {
             content: "Hey! If you want to chat with me just send a message in #chatting-with-mela or ping me in any channel :) \nIf you want to generate something using AI, here are the commands: \n 1) 'Can you generate PROMPTHERE' - Will generate anything you want \n 2) 'Can you show me what you look like?' - self explanatory \n 3) 'What are you doing right now' or 'What are you up to' - combines OpenAI and Stable diffusion to generate a picture of what I'm up to"
         });
     }
+    else if (command.startsWith("AI")) {
+        if (message.author.id === '631556720338010143') {
+            if (stablediff == false) {
+                stablediff = true;
+            }
+            else
+                (stablediff = false);
+            console.log('Stable Diffusion generation set to ' + stablediff.toString());
+            message.reply({
+                content: 'Stable Diffusion generation set to ' + stablediff.toString()
+            });
+        }
+        else {
+            message.reply({
+                content: "You don't have the permissions to do that"
+            });
+        }
+    }
     return null;
 }
 client.on('ready', () => {
@@ -351,7 +369,7 @@ client.on('messageCreate', (message) => {
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes");
             sendImageNormal(message, prompt);
         }
-        else if (message.content.startsWith('Can you show me')) {
+        else if (message.content.startsWith('Can you show me you')) {
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ");
             prompt += message.content;
             sendImageNormal(message, prompt);
@@ -392,29 +410,23 @@ client.on('messageCreate', (message) => {
     }
 });
 client.login(process.env.TOKEN);
-/*        if (message.guildId === '824352276742275093'){
-            message.reply({
-                content: 'Sorry, I am on a break right now'
-            })
-            return
-        }*/
 function stableDiffusion(prompt) {
     return __awaiter(this, void 0, void 0, function* () {
         const api = new a1111_webui_api_1.default({
             baseUrl: "https://4f60f8efda2202f03f.gradio.live",
-            defaultStepCount: 25
+            defaultStepCount: 30
         });
         const result = yield api.txt2img({
-            prompt: "amazing, masterpiece, 8k resolution," + prompt,
+            prompt: prompt,
             sampler_name: "DPM++ 2M Karras",
             negative_prompt: "worst quality, low quality, monochrome, zombie, interlocked fingers, loli, small girl, small breasts",
             width: 512,
             height: 768,
-            cfg_scale: 7.0,
+            cfg_scale: 6.0,
             enable_hr: true,
             hr_scale: 2,
             denoising_strength: 0.55,
-            hr_second_pass_steps: 10
+            hr_second_pass_steps: 12
         });
         result.image.toFile('Aiimage.png');
     });
@@ -422,50 +434,59 @@ function stableDiffusion(prompt) {
 function sendImageNormal(message, prompt) {
     return __awaiter(this, void 0, void 0, function* () {
         message.channel.sendTyping();
-        try {
-            yield stableDiffusion(prompt);
-            setTimeout(function () {
-                message.reply({
-                    content: 'Sure!',
-                    files: [{ attachment: "Aiimage.png" }]
-                });
-            }, 1000);
+        if (stablediff == false) {
+            message.reply({
+                content: 'Sorry, AI image generation is currently disabled due to SD running locally and it currently being offline'
+            });
         }
-        catch (error) {
-            if (stablediff) {
-                message.reply({
-                    content: 'An unexpected error occured'
-                });
+        else {
+            try {
+                yield stableDiffusion(prompt);
+                setTimeout(function () {
+                    message.reply({
+                        content: 'Sure!',
+                        files: [{ attachment: "Aiimage.png" }]
+                    });
+                }, 1000);
             }
-            else {
-                message.reply({
-                    content: 'Image Generation is curently off'
-                });
+            catch (error) {
+                if (stablediff) {
+                    message.reply({
+                        content: 'An unexpected error occured'
+                    });
+                }
             }
         }
     });
 }
 function sendImageGenerated(message, prompt) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield stableDiffusion("(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, " + prompt);
-            setTimeout(function () {
-                message.reply({
-                    content: prompt,
-                    files: [{ attachment: "Aiimage.png" }]
-                });
-            }, 1000);
+        if (stablediff == false) {
+            message.reply({
+                content: 'Sorry, AI image generation is currently disabled due to SD running locally and it currently being offline'
+            });
         }
-        catch (error) {
-            if (stablediff) {
-                message.reply({
-                    content: 'An unexpected error occured'
-                });
+        else {
+            try {
+                yield stableDiffusion("(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, " + prompt);
+                setTimeout(function () {
+                    message.reply({
+                        content: prompt,
+                        files: [{ attachment: "Aiimage.png" }]
+                    });
+                }, 1000);
             }
-            else {
-                message.reply({
-                    content: 'Image Generation is curently off'
-                });
+            catch (error) {
+                if (stablediff) {
+                    message.reply({
+                        content: 'An unexpected error occured'
+                    });
+                }
+                else {
+                    message.reply({
+                        content: 'Image Generation is curently off'
+                    });
+                }
             }
         }
     });
