@@ -439,7 +439,7 @@ async function stableDiffusion(prompt:string){
     const result = await api.txt2img({
         prompt: "amazing, masterpiece, 8k resolution," + prompt,
         sampler_name: "DPM++ 2M Karras",
-        negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
+        negative_prompt: "worst quality, low quality, monochrome, zombie, interlocked fingers, loli, small girl, small breasts",
         width: 512,
         height: 768,
         cfg_scale: 7.0,
