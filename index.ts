@@ -433,14 +433,14 @@ async function stableDiffusion(prompt:string){
     });
     
     const result = await api.txt2img({
-        prompt: "amazing, masterpiece, " + prompt,
+        prompt: "amazing, masterpiece, 8k resolution," + prompt,
         sampler_name: "DPM++ 2M Karras",
         negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
         width: 512,
         height: 768,
         cfg_scale: 7.0,
         enable_hr: true,
-        hr_scale: 1.8,
+        hr_scale: 2,
         denoising_strength: 0.55,
         hr_second_pass_steps: 10
     
