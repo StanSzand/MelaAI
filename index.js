@@ -42,6 +42,7 @@ const a1111_webui_api_1 = __importDefault(require("a1111-webui-api"));
 dotenv_1.default.config();
 var working = false;
 var stablediff = false;
+var site = '';
 //Discord JS
 const client = new discord_js_1.default.Client({
     intents: [
@@ -304,6 +305,22 @@ function runCommand(message, command) {
             });
         }
     }
+    else if (command.startsWith("SDset")) {
+        command = command.replace("SDset", '');
+        if (message.author.id === '631556720338010143') {
+            site = command.replace('setAI', '');
+            site = site.replace(' ', '');
+            console.log(site);
+            message.reply({
+                content: 'Stable Diffusion link set to ' + site
+            });
+        }
+        else {
+            message.reply({
+                content: "You don't have the permissions to do that"
+            });
+        }
+    }
     return null;
 }
 client.on('ready', () => {
@@ -413,7 +430,7 @@ client.login(process.env.TOKEN);
 function stableDiffusion(prompt) {
     return __awaiter(this, void 0, void 0, function* () {
         const api = new a1111_webui_api_1.default({
-            baseUrl: "https://4f60f8efda2202f03f.gradio.live",
+            baseUrl: site,
             defaultStepCount: 30
         });
         const result = yield api.txt2img({

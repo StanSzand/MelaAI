@@ -10,7 +10,7 @@ dotenv.config()
 
 var working=false
 var stablediff=false
-
+var site=''
 
 
 
@@ -332,6 +332,22 @@ function runCommand(message: any, command: string){
             })
         }
         
+    }else if (command.startsWith("SDset")){
+        command = command.replace("SDset", '')
+        if (message.author.id === '631556720338010143'){
+            site = command.replace('setAI', '')
+            site = site.replace(' ', '')
+            console.log(site)
+            message.reply({
+                content: 'Stable Diffusion link set to ' + site
+            })
+
+        }else{
+            message.reply({
+                content: "You don't have the permissions to do that"
+            })
+        }
+        
     }
     return null
 }
@@ -441,14 +457,14 @@ client.login(process.env.TOKEN)
 
 async function stableDiffusion(prompt:string){
     const api = new StableDiffusionApi({
-        baseUrl: "https://4f60f8efda2202f03f.gradio.live",
+        baseUrl: site,
         defaultStepCount: 30
     });
     
     const result = await api.txt2img({
         prompt: prompt,
         sampler_name: "DPM++ 2M Karras",
-        negative_prompt: "worst quality, low quality, monochrome, zombie, interlocked fingers, loli, small girl, small breasts",
+        negative_prompt: "worst quality, low quality, monochrome, interlocked fingers, loli, small girl, small breasts",
         width: 512,
         height: 768,
         cfg_scale: 6.0,
