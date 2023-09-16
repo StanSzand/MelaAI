@@ -371,12 +371,12 @@ client.on('messageCreate', (message) => {
         }
         else if (message.content.startsWith('Can you show me you')) {
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ");
-            prompt += message.content;
+            console.log(prompt);
             sendImageNormal(message, prompt);
         }
         else if (message.content.startsWith('Can you generate')) {
             var prompt = message.content.replace("Can you generate", "");
-            prompt += message.content;
+            console.log(prompt);
             sendImageNormal(message, prompt);
         }
         else {
@@ -395,12 +395,12 @@ client.on('messageCreate', (message) => {
         }
         else if (message.content.startsWith('Can you show me')) {
             var prompt = message.content.replace("Can you show me ", "(AI girl named Mela:1.1), light grey hair, blue eyes, ");
-            prompt += message.content;
+            console.log(prompt);
             sendImageNormal(message, prompt);
         }
         else if (message.content.startsWith('Can you generate')) {
             var prompt = message.content.replace("Can you generate", "");
-            prompt += message.content;
+            console.log(prompt);
             sendImageNormal(message, prompt);
         }
         else {
