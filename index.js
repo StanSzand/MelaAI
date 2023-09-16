@@ -281,6 +281,11 @@ function runCommand(message, command) {
     else if (command.startsWith('play')) {
         //playSong(message)
     }
+    else if (command.startsWith('help')) {
+        message.reply({
+            content: "Hey! If you want to chat with me just send a message in #chatting-with-mela or ping me in any channel :) \nIf you want to generate something using AI, here are the commands: \n 1) 'Can you generate PROMPTHERE' - Will generate anything you want \n 2) 'Can you show me what you look like?' - self explanatory \n 3) 'What are you doing right now' or 'What are you up to' - combines OpenAI and Stable diffusion to generate a picture of what I'm up to"
+        });
+    }
     return null;
 }
 client.on('ready', () => {
@@ -400,14 +405,14 @@ function stableDiffusion(prompt) {
             defaultStepCount: 25
         });
         const result = yield api.txt2img({
-            prompt: "amazing, masterpiece, " + prompt,
+            prompt: "amazing, masterpiece, 8k resolution," + prompt,
             sampler_name: "DPM++ 2M Karras",
             negative_prompt: "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers:1.2)",
             width: 512,
             height: 768,
             cfg_scale: 7.0,
             enable_hr: true,
-            hr_scale: 1.8,
+            hr_scale: 2,
             denoising_strength: 0.55,
             hr_second_pass_steps: 10
         });
