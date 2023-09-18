@@ -365,7 +365,10 @@ client.on('messageCreate', (message) =>{
         //if it is. do nothing
         return
     }
-        
+    if (message.content.startsWith('.')){
+        // skips the whole routine
+        return
+    }
     if(message.content.startsWith('!p')){
         runCommand(message, message.content.replace("!p ", ""))
     }
