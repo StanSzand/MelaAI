@@ -11,7 +11,7 @@ dotenv.config()
 var working=false
 var stablediff=false
 var site=''
-
+var previousPrompt = ''
 
 
 //Discord JS
@@ -378,6 +378,14 @@ client.on('messageCreate', (message) =>{
         message.reply({
             content: 'GoatGaming loves it'
         })
+    }else if (message.content === 'can you generate that again'){
+        if (previousPrompt === ''){
+            message.reply({
+                content: "Sorry, I haven't generated anything since Stan restarted me :("
+            })
+        }else{
+            sendImageNormal(message, previousPrompt)
+        }
     }
     else if (message.content.startsWith('<@1075173399342629024>')) {
         if (message.guildId === '824352276742275093' && working){
@@ -456,6 +464,7 @@ client.on('messageCreate', (message) =>{
 client.login(process.env.TOKEN)
 
 async function stableDiffusion(prompt:string){
+    previousPrompt = prompt
     const api = new StableDiffusionApi({
         baseUrl: site,
         defaultStepCount: 30

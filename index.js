@@ -43,6 +43,7 @@ dotenv_1.default.config();
 var working = false;
 var stablediff = false;
 var site = '';
+var previousPrompt = '';
 //Discord JS
 const client = new discord_js_1.default.Client({
     intents: [
@@ -346,6 +347,16 @@ client.on('messageCreate', (message) => {
             content: 'GoatGaming loves it'
         });
     }
+    else if (message.content === 'can you generate that again') {
+        if (previousPrompt === '') {
+            message.reply({
+                content: "Sorry, I haven't generated anything since Stan restarted me :("
+            });
+        }
+        else {
+            sendImageNormal(message, previousPrompt);
+        }
+    }
     else if (message.content.startsWith('<@1075173399342629024>')) {
         if (message.guildId === '824352276742275093' && working) {
             message.reply({
@@ -429,6 +440,7 @@ client.on('messageCreate', (message) => {
 client.login(process.env.TOKEN);
 function stableDiffusion(prompt) {
     return __awaiter(this, void 0, void 0, function* () {
+        previousPrompt = prompt;
         const api = new a1111_webui_api_1.default({
             baseUrl: site,
             defaultStepCount: 30
@@ -436,7 +448,7 @@ function stableDiffusion(prompt) {
         const result = yield api.txt2img({
             prompt: prompt,
             sampler_name: "DPM++ 2M Karras",
-            negative_prompt: "worst quality, low quality, monochrome, zombie, interlocked fingers, loli, small girl, small breasts",
+            negative_prompt: "worst quality, low quality, monochrome, interlocked fingers, loli, small girl, small breasts",
             width: 512,
             height: 768,
             cfg_scale: 6.0,
