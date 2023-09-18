@@ -347,7 +347,7 @@ client.on('messageCreate', (message) => {
             content: 'GoatGaming loves it'
         });
     }
-    else if (message.content === 'can you generate that again') {
+    else if (message.content === 'Can you generate that again') {
         if (previousPrompt === '') {
             message.reply({
                 content: "Sorry, I haven't generated anything since Stan restarted me :("
