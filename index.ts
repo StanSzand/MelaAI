@@ -556,10 +556,22 @@ async function getImage(message: any, taskID: string){
     const bodyImage= await responseImage.json()
     const imageURL = bodyImage.data.imgs[0]
     console.log(imageURL)
-    message.reply({
-        content: imageURL
-    })
-    
-    }, 14000)
+    try{
+        message.reply({
+            content: imageURL
+        })
+    }catch{
+        try{setTimeout( function(){
+            message.reply({
+            content: imageURL
+            })
+        }, 10000)}
+        catch{
+            message.reply({
+                content: 'Sorry, that image generation took too long to respond - try a different image'
+            })
+        }
+    }
+    }, 10000)
    
 }

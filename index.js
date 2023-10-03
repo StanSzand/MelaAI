@@ -529,10 +529,26 @@ function getImage(message, taskID) {
                 const bodyImage = yield responseImage.json();
                 const imageURL = bodyImage.data.imgs[0];
                 console.log(imageURL);
-                message.reply({
-                    content: imageURL
-                });
+                try {
+                    message.reply({
+                        content: imageURL
+                    });
+                }
+                catch (_a) {
+                    try {
+                        setTimeout(function () {
+                            message.reply({
+                                content: imageURL
+                            });
+                        }, 10000);
+                    }
+                    catch (_b) {
+                        message.reply({
+                            content: 'Sorry, that image generation took too long to respond - try a different image'
+                        });
+                    }
+                }
             });
-        }, 14000);
+        }, 10000);
     });
 }
