@@ -483,12 +483,13 @@ function stableDiffusion(prompt) {
 var myUrl = 'http://api.omniinfer.io/v2/txt2img';
 function generateImage(message, prompt) {
     return __awaiter(this, void 0, void 0, function* () {
+        previousPrompt = prompt;
         message.channel.sendTyping();
         console.log(prompt);
         var content = `{
         "prompt": "(masterpiece, best quality:1.2), ${prompt}",
         "negative_prompt": "worst quality, low quality, monochrome",
-        "model_name": "cetusMix_Coda2.safetensors",
+        "model_name": "darkSushiMixMix_225D_64380.safetensors",
         "sampler_name": "DPM++ 2M Karras",
         "batch_size": 1,
         "n_iter": 1,
