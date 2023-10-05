@@ -153,7 +153,7 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
             if (req == 'What are you doing right now?' || req == 'What are you up to?' || req == 'Hey mela, what are you up to?') {
                 if (stablediff) {
                     var prompt = '(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, overwhelmingly cute, ' + answer.toString();
-                    generateImage(message, prompt);
+                    generateImage(message, prompt, false);
                 }
                 else
                     (message.reply({
@@ -370,7 +370,7 @@ client.on('messageCreate', (message) => {
         }
         else {
             console.log(previousPrompt);
-            generateImage(message, previousPrompt);
+            generateImage(message, previousPrompt, lastReal);
         }
     }
     else if (message.content.startsWith('<@1075173399342629024>')) {
@@ -409,19 +409,27 @@ client.on('messageCreate', (message) => {
             });
             return;
         }
-        if (message.content.startsWith('Can you show me what you look like?')) {
+        if (message.content == 'Can you show me what you look like?') {
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute");
-            generateImage(message, prompt);
+            generateImage(message, prompt, false);
         }
         else if (message.content.startsWith('Can you show me you')) {
             var prompt = message.content.replace("Can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ");
             console.log(prompt);
-            generateImage(message, prompt);
+            generateImage(message, prompt, false);
         }
-        else if (message.content.startsWith('Can you generate')) {
-            var prompt = message.content.replace("Can you generate", "");
+        else if (message.content == 'Can you generate') {
+            var prompt = message.content.replace("Can you generate ", "");
             console.log(prompt);
-            generateImage(message, prompt);
+            if (prompt.startsWith('real')) {
+                var prompt = prompt.replace("real", "");
+                console.log(prompt);
+                generateImage(message, prompt, true);
+            }
+            else {
+                console.log(prompt);
+                generateImage(message, prompt, false);
+            }
         }
         else {
             var question = message.content;
@@ -435,21 +443,29 @@ client.on('messageCreate', (message) => {
     else if (message.channelId == '1123703366040690850') { //TEXT private
         if (message.content.startsWith('Can you show me what you look like?')) {
             var prompt = message.content.replace("Can you show me what you look like?", "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute");
-            generateImage(message, prompt);
+            generateImage(message, prompt, false);
         }
         else if (message.content.startsWith('Can you show me you')) {
             var prompt = message.content.replace("Can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute, ");
             console.log(prompt);
-            generateImage(message, prompt);
+            generateImage(message, prompt, false);
         }
         else if (message.content.startsWith('Can you generate')) {
-            var prompt = message.content.replace("Can you generate", "");
+            var prompt = message.content.replace("Can you generate ", "");
             console.log(prompt);
-            generateImage(message, prompt);
+            if (prompt.startsWith('real')) {
+                var prompt = prompt.replace("real", "");
+                console.log(prompt);
+                generateImage(message, prompt, true);
+            }
+            else {
+                console.log(prompt);
+                generateImage(message, prompt, false);
+            }
         }
         else if (message.content.startsWith('cg')) {
             var prompt = message.content.replace("cg", "");
-            generateImage(message, prompt);
+            generateImage(message, prompt, false);
         }
         else {
             var question = message.content;
@@ -481,28 +497,51 @@ function stableDiffusion(prompt) {
     });
 }
 var myUrl = 'http://api.omniinfer.io/v2/txt2img';
-function generateImage(message, prompt) {
+var lastReal = false;
+function generateImage(message, prompt, realism) {
     return __awaiter(this, void 0, void 0, function* () {
         previousPrompt = prompt;
+        lastReal = realism;
         message.channel.sendTyping();
         console.log(prompt);
-        var content = `{
-        "prompt": "(masterpiece, best quality:1.2), ${prompt}",
-        "negative_prompt": "worst quality, low quality, monochrome",
-        "model_name": "darkSushiMixMix_225D_64380.safetensors",
-        "sampler_name": "DPM++ 2M Karras",
-        "batch_size": 1,
-        "n_iter": 1,
-        "steps": 20,
-        "enable_hr": true,
-        "hr_scale": 1.5,
-        "denoising_strength": 0.55,
-        "hr_second_pass_steps": 10,
-        "cfg_scale": 7,
-        "seed": -1,
-        "height": 768,
-        "width": 512
-      }`;
+        if (realism) {
+            var content = `{
+            "prompt": "(masterpiece, best quality:1.2), ${prompt}",
+            "negative_prompt": "worst quality, low quality, monochrome",
+            "model_name": "sd_xl_base_1.0.safetensors",
+            "sampler_name": "DPM++ 2M Karras",
+            "batch_size": 1,
+            "n_iter": 1,
+            "steps": 20,
+            "enable_hr": true,
+            "hr_scale": 1.5,
+            "denoising_strength": 0.55,
+            "hr_second_pass_steps": 10,
+            "cfg_scale": 7,
+            "seed": -1,
+            "height": 768,
+            "width": 512
+          }`;
+        }
+        else {
+            var content = `{
+            "prompt": "(masterpiece, best quality:1.2), ${prompt}",
+            "negative_prompt": "worst quality, low quality, monochrome",
+            "model_name": "darkSushiMixMix_225D_64380.safetensors",
+            "sampler_name": "DPM++ 2M Karras",
+            "batch_size": 1,
+            "n_iter": 1,
+            "steps": 20,
+            "enable_hr": true,
+            "hr_scale": 1.5,
+            "denoising_strength": 0.55,
+            "hr_second_pass_steps": 10,
+            "cfg_scale": 7,
+            "seed": -1,
+            "height": 768,
+            "width": 512
+        }`;
+        }
         const response = yield fetch(myUrl, {
             method: 'POST',
             body: content,
