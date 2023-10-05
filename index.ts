@@ -443,7 +443,7 @@ client.on('messageCreate', (message) =>{
             var prompt = message.content.replace("Can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
             console.log(prompt)
             generateImage(message, prompt, false)
-        }else if(message.content == 'Can you generate'){
+        }else if(message.content.startsWith('Can you generate')){
             var prompt = message.content.replace("Can you generate ", "")
             console.log(prompt)
             if(prompt.startsWith('real')){

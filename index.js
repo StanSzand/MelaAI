@@ -418,7 +418,7 @@ client.on('messageCreate', (message) => {
             console.log(prompt);
             generateImage(message, prompt, false);
         }
-        else if (message.content == 'Can you generate') {
+        else if (message.content.startsWith('Can you generate')) {
             var prompt = message.content.replace("Can you generate ", "");
             console.log(prompt);
             if (prompt.startsWith('real')) {
