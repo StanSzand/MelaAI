@@ -34,7 +34,8 @@
     "say": "^0.16.0",
     "sharp": "^0.32.1",
     "ts-node": "^10.9.1",
-    "ytdl-core": "^4.11.5"
+    "ytdl-core": "^4.11.5",
+    "ytpl": "^2.3.0"
   },
   "compilerOptions": {
     "lib": [

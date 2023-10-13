@@ -41,8 +41,9 @@ const discord_js_1 = __importStar(require("discord.js"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const ytdl_core_1 = __importDefault(require("ytdl-core"));
 const gptAI_1 = require("./gptAI");
+const ytpl_1 = __importDefault(require("ytpl"));
 dotenv_1.default.config();
-var working = true;
+var working = false;
 var stablediff = false;
 exports.stablediff = stablediff;
 var previousPrompt = '';
@@ -70,19 +71,37 @@ function startPlay(message, link) {
         const channel = (_a = message.member) === null || _a === void 0 ? void 0 : _a.voice.channel;
         if (channel) {
             try {
-                const songInfo = yield ytdl_core_1.default.getInfo(link);
-                const song = {
-                    songNumber: 'null',
-                    title: songInfo.videoDetails.title,
-                    url: songInfo.videoDetails.video_url
-                };
-                queue.push(song);
-                if (queue.length === 1) {
-                    playSong(channel, message);
+                if (link.includes('playlist')) {
+                    const playlist = yield (0, ytpl_1.default)(link);
+                    const songUrls = playlist.items.map((item) => item.url);
+                    for (const songUrl of songUrls) {
+                        const songInfo = yield ytdl_core_1.default.getInfo(songUrl);
+                        const song = {
+                            songNumber: 'null',
+                            title: songInfo.videoDetails.title,
+                            url: songInfo.videoDetails.video_url
+                        };
+                        queue.push(song);
+                        if (queue.length === 1) {
+                            playSong(channel, message);
+                        }
+                    }
                 }
-                message.reply({
-                    content: `Added ${link} to the queue 😃`
-                });
+                else {
+                    const songInfo = yield ytdl_core_1.default.getInfo(link);
+                    const song = {
+                        songNumber: 'null',
+                        title: songInfo.videoDetails.title,
+                        url: songInfo.videoDetails.video_url
+                    };
+                    queue.push(song);
+                    if (queue.length === 1) {
+                        playSong(channel, message);
+                    }
+                    message.reply({
+                        content: `Added ${link} to the queue 😃`
+                    });
+                }
             }
             catch (_b) {
                 message.reply({
@@ -165,6 +184,7 @@ function runCommand(message, command) {
             3. "!p resume" \n
             4. "!p skip" \n
             5. "!p queue" \n
+            6. "!p goto *number* \n
             **To chat with me, please use #chatting-with-mela, ping me in any other channel or simply reply to my message** \n
             For image generation please use: \n
             1. "Can you please generate *prompt here*" - use those for anime styled generations \n
@@ -241,6 +261,21 @@ function runCommand(message, command) {
             content: "You don't like that one huh? 🤔 Skipped it for you. 🥰"
         });
     }
+    else if (command.startsWith('goto')) {
+        try {
+            var intiger = parseInt(command.replace('goto ', ''));
+            goTo(intiger - 2);
+            message.reply({
+                content: `Skipped to number ${intiger}.`
+            });
+        }
+        catch (error) {
+            console.log(error);
+            message.reply({
+                content: `An error occured while skipping.`
+            });
+        }
+    }
 }
 function pauseSong() {
     player.pause();
@@ -250,6 +285,10 @@ function resumeSong() {
 }
 function skipSong() {
     player.stop();
+}
+function goTo(index) {
+    queue = queue.splice(index);
+    skipSong();
 }
 client.on('messageCreate', (message) => {
     //console.log(message.content)

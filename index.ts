@@ -3,10 +3,11 @@ import DiscordJS, { Client, EmbedBuilder, GatewayIntentBits, Guild, VoiceChannel
 import dotenv from 'dotenv'
 import ytdl from 'ytdl-core';
 import {resetAI, askGpt} from './gptAI'
+import ytpl from 'ytpl'
 
 dotenv.config()
 
-var working=true
+var working=false
 var stablediff=false
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
@@ -36,22 +37,43 @@ async function startPlay(message: any, link: string){
     const channel = message.member?.voice.channel;
     if (channel) {
         try{
-            const songInfo = await ytdl.getInfo(link)
-            
-            const song = {
-                songNumber: 'null', 
-                title: songInfo.videoDetails.title,
-                url: songInfo.videoDetails.video_url
-              }
-            queue.push(song)
-        
-            if (queue.length === 1) {
-                playSong(channel, message)
-            }
 
-            message.reply({
-                content: `Added ${link} to the queue 😃`
-            })
+            if (link.includes('playlist')){
+                const playlist = await ytpl(link);
+                const songUrls = playlist.items.map((item) => item.url);
+
+                for (const songUrl of songUrls) {
+                    const songInfo = await ytdl.getInfo(songUrl);
+                    const song = {
+                        songNumber: 'null', 
+                        title: songInfo.videoDetails.title,
+                        url: songInfo.videoDetails.video_url
+                      }
+                      queue.push(song)
+                      if (queue.length === 1) {
+                        playSong(channel, message)
+                    }
+                }
+                
+            }else{
+
+                const songInfo = await ytdl.getInfo(link)
+                
+                const song = {
+                    songNumber: 'null', 
+                    title: songInfo.videoDetails.title,
+                    url: songInfo.videoDetails.video_url
+                }
+                queue.push(song)
+            
+                if (queue.length === 1) {
+                    playSong(channel, message)
+                }
+
+                message.reply({
+                    content: `Added ${link} to the queue 😃`
+                })
+            }
         }catch{
                 message.reply({
                     content: `That link is invalid, please make sure it is not age restricted or in a private playlist`
@@ -144,6 +166,7 @@ function runCommand(message: any, command: string){
             3. "!p resume" \n
             4. "!p skip" \n
             5. "!p queue" \n
+            6. "!p goto *number* \n
             **To chat with me, please use #chatting-with-mela, ping me in any other channel or simply reply to my message** \n
             For image generation please use: \n
             1. "Can you please generate *prompt here*" - use those for anime styled generations \n
@@ -216,6 +239,19 @@ function runCommand(message: any, command: string){
         message.reply({
             content: "You don't like that one huh? 🤔 Skipped it for you. 🥰"
         })
+    }else if (command.startsWith('goto')){
+        try{
+            var intiger = parseInt(command.replace('goto ',''))
+            goTo(intiger-2)
+            message.reply({
+                content: `Skipped to number ${intiger}.`
+            })
+        }catch(error){
+            console.log(error)
+            message.reply({
+                content: `An error occured while skipping.`
+            })
+        }
     }
 }
 
@@ -230,6 +266,11 @@ function resumeSong() {
 
 function skipSong() {
     player.stop();
+}
+
+function goTo(index: number){
+    queue = queue.splice(index)
+    skipSong()
 }
 
 client.on('messageCreate', (message) =>{
