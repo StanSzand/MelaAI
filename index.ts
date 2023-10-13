@@ -101,7 +101,6 @@ async function playSong(voiceChannel: any, message: any) {
                     try{
                         if(connection){
                             connection.destroy()
-                            alreadyplaying = false
                         }
                          
                     }catch(error){

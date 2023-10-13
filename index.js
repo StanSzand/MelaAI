@@ -124,7 +124,6 @@ function playSong(voiceChannel, message) {
                         try {
                             if (connection) {
                                 connection.destroy();
-                                alreadyplaying = false;
                             }
                         }
                         catch (error) {
