@@ -45,7 +45,6 @@ dotenv_1.default.config();
 var working = true;
 var stablediff = false;
 exports.stablediff = stablediff;
-var site = '';
 var previousPrompt = '';
 const omniKey = process.env.OMNIKEY;
 var queue = [];

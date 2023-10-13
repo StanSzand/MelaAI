@@ -8,7 +8,6 @@ dotenv.config()
 
 var working=true
 var stablediff=false
-var site=''
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
 var queue:any[] = []
