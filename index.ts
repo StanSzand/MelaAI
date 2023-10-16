@@ -4,10 +4,11 @@ import dotenv from 'dotenv'
 import ytdl from 'ytdl-core';
 import {resetAI, askGpt} from './gptAI'
 import ytpl from 'ytpl'
+import search from 'youtube-search';
 
 dotenv.config()
 
-var working=false
+var working=true
 var stablediff=false
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
@@ -33,7 +34,7 @@ const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice')
 
 
 async function startPlay(message: any, link: string){
-    console.log(`Added ${link} to the queue`)
+    console.log(`Added <${link}> to the queue`)
     const channel = message.member?.voice.channel;
     if (channel) {
         try{
@@ -87,7 +88,15 @@ async function startPlay(message: any, link: string){
         
  }
         
-
+async function searchSong(message: any, songname: string){
+    const searchResults = await search(songname, {
+        maxResults: 1,
+        key: process.env.YOUTUBE_API_KEY, // Remember to set your YouTube API key in the .env file
+      });
+    const videoUrl = searchResults.results[0].link
+    startPlay(message, videoUrl)
+    
+}
 
 async function playSong(voiceChannel: any, message: any) {
     const channel = message.member?.voice.channel;
@@ -153,10 +162,15 @@ function runCommand(message: any, command: string){
         })
     }else if (command.startsWith('play')){
             command = command.replace('play ', '')
-            if(command.includes('&')){
-                command = command.split('&')[0]
+            if(command.includes('youtube.com') || command.includes('youtu.be')){
+                if(command.includes('&')){
+                    command = command.split('&')[0]
+                }
+                startPlay(message, command)
+            }else{
+                searchSong(message, command)
             }
-            startPlay(message, command)
+            
     }else if (command.startsWith('help')){
             const helpEmbed = new EmbedBuilder()
             .setTitle("I see you requested for help, here you are:")

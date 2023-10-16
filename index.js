@@ -42,8 +42,9 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const ytdl_core_1 = __importDefault(require("ytdl-core"));
 const gptAI_1 = require("./gptAI");
 const ytpl_1 = __importDefault(require("ytpl"));
+const youtube_search_1 = __importDefault(require("youtube-search"));
 dotenv_1.default.config();
-var working = false;
+var working = true;
 var stablediff = false;
 exports.stablediff = stablediff;
 var previousPrompt = '';
@@ -67,7 +68,7 @@ const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 function startPlay(message, link) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(`Added ${link} to the queue`);
+        console.log(`Added <${link}> to the queue`);
         const channel = (_a = message.member) === null || _a === void 0 ? void 0 : _a.voice.channel;
         if (channel) {
             try {
@@ -112,6 +113,16 @@ function startPlay(message, link) {
         else {
             message.channel.send("You need to be in a voice channel to use this command, darling.");
         }
+    });
+}
+function searchSong(message, songname) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const searchResults = yield (0, youtube_search_1.default)(songname, {
+            maxResults: 1,
+            key: process.env.YOUTUBE_API_KEY, // Remember to set your YouTube API key in the .env file
+        });
+        const videoUrl = searchResults.results[0].link;
+        startPlay(message, videoUrl);
     });
 }
 function playSong(voiceChannel, message) {
@@ -170,10 +181,15 @@ function runCommand(message, command) {
     }
     else if (command.startsWith('play')) {
         command = command.replace('play ', '');
-        if (command.includes('&')) {
-            command = command.split('&')[0];
+        if (command.includes('youtube.com') || command.includes('youtu.be')) {
+            if (command.includes('&')) {
+                command = command.split('&')[0];
+            }
+            startPlay(message, command);
         }
-        startPlay(message, command);
+        else {
+            searchSong(message, command);
+        }
     }
     else if (command.startsWith('help')) {
         const helpEmbed = new discord_js_1.EmbedBuilder()
