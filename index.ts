@@ -380,7 +380,7 @@ async function generateImage(message: any, prompt: string, realism: boolean){
         "n_iter": 1,
         "steps": 20,
         "enable_hr": true,
-        "hr_scale": 1.5,
+        "hr_scale": 1.8,
         "denoising_strength": 0.55,
         "hr_second_pass_steps": 10,
         "cfg_scale": 7,
@@ -407,28 +407,58 @@ async function generateImage(message: any, prompt: string, realism: boolean){
 async function getImage(message: any, taskID: string){
     const myURL = 'http://api.omniinfer.io/v2/progress?task_id='+taskID
     setTimeout(async function(){
-    const responseImage = await fetch(myURL, {
-        method: 'GET',
-        headers: {'User-Agent': 'Apifox/1.0.0 (https://www.apifox.cn)',
-        'X-Omni-Key': `${omniKey}` } 
-    })
-    const bodyImage= await responseImage.json()
-    const imageURL = bodyImage.data.imgs[0]
-    console.log(imageURL)
     try{
+        message.channel.sendTyping()
+        const responseImage = await fetch(myURL, {
+            method: 'GET',
+            headers: {'User-Agent': 'Apifox/1.0.0 (https://www.apifox.cn)',
+            'X-Omni-Key': `${omniKey}` } 
+        })
+        const bodyImage= await responseImage.json()
+        const imageURL = bodyImage.data.imgs[0]
+        console.log(imageURL)
+    
         message.reply({
             content: imageURL
         })
     }catch{
-        try{setTimeout( function(){
+        try{setTimeout(async  function(){
+            message.channel.sendTyping()
+            const responseImage = await fetch(myURL, {
+                method: 'GET',
+                headers: {'User-Agent': 'Apifox/1.0.0 (https://www.apifox.cn)',
+                'X-Omni-Key': `${omniKey}` } 
+            })
+            const bodyImage= await responseImage.json()
+            const imageURL = bodyImage.data.imgs[0]
+            console.log(imageURL)
+        
             message.reply({
             content: imageURL
             })
         }, 10000)}
         catch{
-            message.reply({
-                content: 'Sorry, that image generation took too long to respond - try a different image'
-            })
+            try{
+                message.channel.sendTyping()
+                setTimeout(async  function(){
+                const responseImage = await fetch(myURL, {
+                    method: 'GET',
+                    headers: {'User-Agent': 'Apifox/1.0.0 (https://www.apifox.cn)',
+                    'X-Omni-Key': `${omniKey}` } 
+                })
+                const bodyImage= await responseImage.json()
+                const imageURL = bodyImage.data.imgs[0]
+                console.log(imageURL)
+            
+                message.reply({
+                content: imageURL
+                })
+            }, 10000)
+            }catch{
+                message.reply({
+                    content: 'Sorry, that image generation took too long to respond - try a different image'
+                })
+            } 
         }
     }
     }, 10000)
