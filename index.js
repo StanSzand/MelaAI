@@ -69,6 +69,18 @@ function startPlay(message, link) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         console.log(`Added <${link}> to the queue`);
+        const fakeCookie = process.env.YTCOOKIE;
+        // Add the fake cookie to the options when calling ytdl
+        const options = {
+            filter: "audioonly",
+            quality: 'highestaudio',
+            highWaterMark: 1 << 25,
+            requestOptions: {
+                headers: {
+                    cookie: fakeCookie,
+                }
+            }
+        };
         const channel = (_a = message.member) === null || _a === void 0 ? void 0 : _a.voice.channel;
         if (channel) {
             try {
@@ -76,7 +88,7 @@ function startPlay(message, link) {
                     const playlist = yield (0, ytpl_1.default)(link);
                     const songUrls = playlist.items.map((item) => item.url);
                     for (const songUrl of songUrls) {
-                        const songInfo = yield ytdl_core_1.default.getInfo(songUrl);
+                        const songInfo = yield ytdl_core_1.default.getInfo(songUrl, options);
                         const song = {
                             songNumber: 'null',
                             title: songInfo.videoDetails.title,
@@ -84,12 +96,12 @@ function startPlay(message, link) {
                         };
                         queue.push(song);
                         if (queue.length === 1) {
-                            playSong(channel, message);
+                            playSong(channel, message, options);
                         }
                     }
                 }
                 else {
-                    const songInfo = yield ytdl_core_1.default.getInfo(link);
+                    const songInfo = yield ytdl_core_1.default.getInfo(link, options);
                     const song = {
                         songNumber: 'null',
                         title: songInfo.videoDetails.title,
@@ -97,7 +109,7 @@ function startPlay(message, link) {
                     };
                     queue.push(song);
                     if (queue.length === 1) {
-                        playSong(channel, message);
+                        playSong(channel, message, options);
                     }
                     message.reply({
                         content: `Added ${link} to the queue 😃`
@@ -125,7 +137,7 @@ function searchSong(message, songname) {
         startPlay(message, videoUrl);
     });
 }
-function playSong(voiceChannel, message) {
+function playSong(voiceChannel, message, options) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const channel = (_a = message.member) === null || _a === void 0 ? void 0 : _a.voice.channel;
@@ -134,11 +146,7 @@ function playSong(voiceChannel, message) {
             guildId: message.guildId,
             adapterCreator: channel.guild.voiceAdapterCreator
         });
-        const stream = (0, ytdl_core_1.default)(queue[0].url, {
-            filter: "audioonly",
-            quality: 'highestaudio',
-            highWaterMark: 1 << 25
-        });
+        const stream = (0, ytdl_core_1.default)(queue[0].url, options);
         const dispatcher = createAudioResource(stream);
         connection.subscribe(player);
         player.play(dispatcher);
@@ -148,7 +156,7 @@ function playSong(voiceChannel, message) {
                     queue.shift();
                     if (queue.length > 0) {
                         alreadyplaying = true;
-                        playSong(voiceChannel, message);
+                        playSong(voiceChannel, message, options);
                     }
                     else {
                         try {

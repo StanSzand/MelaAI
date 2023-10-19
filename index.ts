@@ -35,6 +35,19 @@ const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice')
 
 async function startPlay(message: any, link: string){
     console.log(`Added <${link}> to the queue`)
+    const fakeCookie = process.env.YTCOOKIE
+
+  // Add the fake cookie to the options when calling ytdl
+  const options = {
+    filter: "audioonly",
+            quality: 'highestaudio',
+            highWaterMark: 1 << 25,
+    requestOptions: {
+      headers: {
+        cookie: fakeCookie,
+      }
+  }
+}
     const channel = message.member?.voice.channel;
     if (channel) {
         try{
@@ -44,7 +57,7 @@ async function startPlay(message: any, link: string){
                 const songUrls = playlist.items.map((item) => item.url);
 
                 for (const songUrl of songUrls) {
-                    const songInfo = await ytdl.getInfo(songUrl);
+                    const songInfo = await ytdl.getInfo(songUrl, options);
                     const song = {
                         songNumber: 'null', 
                         title: songInfo.videoDetails.title,
@@ -52,13 +65,13 @@ async function startPlay(message: any, link: string){
                       }
                       queue.push(song)
                       if (queue.length === 1) {
-                        playSong(channel, message)
+                        playSong(channel, message, options)
                     }
                 }
                 
             }else{
 
-                const songInfo = await ytdl.getInfo(link)
+                const songInfo = await ytdl.getInfo(link, options)
                 
                 const song = {
                     songNumber: 'null', 
@@ -68,7 +81,7 @@ async function startPlay(message: any, link: string){
                 queue.push(song)
             
                 if (queue.length === 1) {
-                    playSong(channel, message)
+                    playSong(channel, message, options)
                 }
 
                 message.reply({
@@ -98,7 +111,7 @@ async function searchSong(message: any, songname: string){
     
 }
 
-async function playSong(voiceChannel: any, message: any) {
+async function playSong(voiceChannel: any, message: any, options: any) {
     const channel = message.member?.voice.channel;
 
 
@@ -108,11 +121,7 @@ async function playSong(voiceChannel: any, message: any) {
         adapterCreator: channel.guild.voiceAdapterCreator
     })
         
-    const stream = ytdl(queue[0].url, {
-        filter: "audioonly",
-        quality: 'highestaudio',
-        highWaterMark: 1 << 25
-    })
+    const stream = ytdl(queue[0].url, options)
 
     const dispatcher = createAudioResource(stream);
 
@@ -127,7 +136,7 @@ async function playSong(voiceChannel: any, message: any) {
                 queue.shift();
                 if (queue.length > 0) {
                     alreadyplaying = true 
-                    playSong(voiceChannel, message);
+                    playSong(voiceChannel, message, options);
                 } else {
                     try{
                         if(connection){
