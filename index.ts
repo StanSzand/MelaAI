@@ -297,9 +297,10 @@ function goTo(index: number){
 }
 
 client.on('messageCreate', (message) =>{
-    //console.log(message.content)
-    
-    message.content = message.content.toLowerCase()
+    //console.log(message.content)!
+    if (!message.content.startsWith(`!p play`)){
+        message.content = message.content.toLowerCase()
+    }
 
     if (message.author === client.user || message.content.startsWith('.')) {
         //Do nothing
@@ -393,9 +394,9 @@ async function generateImage(message: any, prompt: string, realism: boolean){
     message.channel.sendTyping()
     console.log(prompt)
     if (realism){
-        var model = 'sd_xl_base_1.0'
+        var model = 'majicmixRealistic_v2'
     } else {
-        var model = 'darkSushiMixMix_225D_64380'
+        var model = 'meinamix_meinaV6_13129'
     }
     var content = `{
         "prompt": "(masterpiece, best quality:1.2), ${prompt}",
