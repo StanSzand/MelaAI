@@ -8,7 +8,7 @@ import search from 'youtube-search';
 
 dotenv.config()
 
-var working=true
+var working=false
 var stablediff=false
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
@@ -299,6 +299,8 @@ function goTo(index: number){
 client.on('messageCreate', (message) =>{
     //console.log(message.content)
     
+    message.content = message.content.toLowerCase()
+
     if (message.author === client.user || message.content.startsWith('.')) {
         //Do nothing
         return
@@ -306,11 +308,12 @@ client.on('messageCreate', (message) =>{
         message.reply({
             content: 'Sorry, I am currently being worked on - ask Stan when my upgrades will be done if you want an estimate'
         })
+        return
     }
 
     if(message.content.startsWith('!p')){
         runCommand(message, message.content.replace("!p ", ""))
-    }else if (message.content.startsWith('Can you generate that again')){
+    }else if (message.content.startsWith('can you generate that again')){
         if (previousPrompt != ''){
             console.log(previousPrompt)
             generateImage(message, previousPrompt, lastReal)
@@ -326,14 +329,14 @@ client.on('messageCreate', (message) =>{
     }else if (message.mentions.has('1075173399342629024')){
         askGpt(message, message.content, false)
     }else if(message.channelId=='1123752426218987601'){ //TEXT kck
-        if(message.content == 'Can you show me what you look like?'){
+        if(message.content == 'can you show me what you look like?'){
             generateImage(message, "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute", false)
-        }else if(message.content.startsWith('Can you show me you')){
-            var prompt = message.content.replace("Can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
+        }else if(message.content.startsWith('can you show me you')){
+            var prompt = message.content.replace("can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
             console.log(prompt)
             generateImage(message, prompt, false)
-        }else if(message.content.startsWith('Can you generate')){
-            var prompt = message.content.replace("Can you generate ", "")
+        }else if(message.content.startsWith('can you generate')){
+            var prompt = message.content.replace("can you generate ", "")
             console.log(prompt)
             if(prompt.startsWith('real')){
                 var prompt = prompt.replace("real", "")
@@ -348,14 +351,14 @@ client.on('messageCreate', (message) =>{
             askGpt(message, message.content, false)
         }
     }else if(message.channelId=='1123703366040690850'){ //TEXT private
-        if(message.content == 'Can you show me what you look like?'){
+        if(message.content == 'can you show me what you look like?'){
             generateImage(message, "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute", false)
-        }else if(message.content.startsWith('Can you show me you')){
-            var prompt = message.content.replace("Can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
+        }else if(message.content.startsWith('can you show me you')){
+            var prompt = message.content.replace("can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
             console.log(prompt)
             generateImage(message, prompt, false)
-        }else if(message.content.startsWith('Can you generate')){
-            var prompt = message.content.replace("Can you generate ", "")
+        }else if(message.content.startsWith('can you generate')){
+            var prompt = message.content.replace("can you generate ", "")
             console.log(prompt)
             if(prompt.startsWith('real')){
                 var prompt = prompt.replace("real", "")
