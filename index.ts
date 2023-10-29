@@ -1,20 +1,30 @@
-import { createAudioPlayer } from '@discordjs/voice'
+import { PlayerSubscription, createAudioPlayer } from '@discordjs/voice'
 import DiscordJS, { Client, EmbedBuilder, GatewayIntentBits, Guild, VoiceChannel } from 'discord.js'
 import dotenv from 'dotenv'
 import ytdl from 'ytdl-core';
 import {resetAI, askGpt} from './gptAI'
 import ytpl from 'ytpl'
-import search from 'youtube-search';
+import search from 'youtube-search'
+import * as fs from 'fs'
+import { SpeechClient } from '@google-cloud/speech';
+import {opus} from 'prism-media'
 
+
+const WavEncoder = require("wav-encoder");
 dotenv.config()
 
-var working=false
+var working=true
 var stablediff=false
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
 var queue:any[] = []
 const player = createAudioPlayer()
 var alreadyplaying = false
+const speechClient = new SpeechClient({
+    projectId: 'steel-bliss-403523',
+    keyFilename: './dolphin.json',
+  });
+
 
 //Discord JS
 const client = new DiscordJS.Client({
@@ -30,7 +40,124 @@ const client = new DiscordJS.Client({
 client.login(process.env.TOKEN)
 
 const voiceDiscord = require('@discordjs/voice')
-const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice')
+const { createAudioResource, AudioPlayerStatus,  joinVoiceChannel, EndBehaviorType, VoiceConnectionStatus  } = require('@discordjs/voice')
+
+
+
+async function talk(text: string, message: any){
+    var sdk = require("microsoft-cognitiveservices-speech-sdk");
+    var readline = require("readline");
+
+    var audioFile = "audiofile.wav";
+    // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+    const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.AZURETOKEN, process.env.AZUREREGION);
+    speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm
+    const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
+    // The language of the voice that speaks.
+
+
+    var speechSynthesisVoiceName  = "en-US-JaneNeural";  
+
+    var ssml = `<speak version='1.0' xml:lang='en-US' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts'> \r\n \
+        <voice name='${speechSynthesisVoiceName}'> \r\n \
+            <prosody pitch="15%" rate="20%">\r\n \
+            ${text} \r\n \
+            </prosody>\r\n \
+        </voice> \r\n \
+    </speak>`;
+    
+    var speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+    console.log(`SSML to synthesize: \r\n ${ssml}`)
+    console.log(`Synthesize to: ${audioFile}`);
+    await speechSynthesizer.speakSsmlAsync(ssml,
+        function (result: { reason: any; errorDetails: string }) {
+      if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+        console.log("SynthesizingAudioCompleted result");
+      } else {
+        console.error("Speech synthesis canceled, " + result.errorDetails +
+            "\nDid you set the speech resource key and region values?");
+      }
+      speechSynthesizer.close();
+      speechSynthesizer = null;
+    },
+        function (err: string) {
+      console.trace("err - " + err);
+      speechSynthesizer.close();
+      speechSynthesizer = null;
+    });
+    playAudio(message)
+}
+
+
+
+async function record(message: any){
+    const channel = message.member.voice.channel
+
+    const connection = voiceDiscord.joinVoiceChannel({
+        channelId: channel.id,
+        guildId: message.guildId,
+        adapterCreator: channel.guild.voiceAdapterCreator, 
+        selfDeaf: false
+    
+    })
+
+
+
+    const receiver = connection.receiver.subscribe('631556720338010143', { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } });
+    const decoder = new opus.Decoder({ frameSize: 960*2, channels: 1, rate: 48000 });
+    const stream = receiver.pipe(decoder).pipe(fs.createWriteStream("./test.pcm"))
+    stream.on("finish", () => {
+        console.log('encoding')
+        var wavConverter = require('wav-converter')
+        var fs = require('fs')
+        var path = require('path')
+        var pcmData = fs.readFileSync(path.resolve(__dirname, './test.pcm'))
+        var wavData = wavConverter.encodeWav(pcmData, {
+            numChannels: 1,
+            sampleRate: 48000
+        })
+         
+        fs.writeFileSync(path.resolve(__dirname, './converted.wav'), wavData)
+        console.log('done writing, logging')
+        checkforMela(message)
+          });      
+        
+}
+
+async function checkforMela(message: any){
+        const filename = 'converted.wav';
+    const encoding = 'LINEAR16';
+    const sampleRateHertz = 48000;
+    const languageCode = 'en-US';
+    const config = {
+        encoding: encoding as any,
+        languageCode: languageCode,
+        enableAutomaticPunctuation: true,
+        sampleRateHertz: sampleRateHertz
+    };
+    
+    const audio = {
+        content: fs.readFileSync(filename).toString('base64'),
+    };
+    
+    const request = {
+        config: config,
+        audio: audio,
+
+    };
+    
+    // Detects speech in the audio file
+    const [response] = await speechClient.recognize(request);
+    const transcription = response.results?.map(result => result.alternatives)[0]
+    const final = transcription?.map(a => a.transcript)[0]
+    console.log(final)
+    if(final?.toLocaleLowerCase().startsWith('mella') || final?.toLocaleLowerCase().startsWith('mela') || final?.toLocaleLowerCase().startsWith("hey, mela") || final?.toLocaleLowerCase().startsWith("hey mela")){
+        askGpt(message, final, true)
+    }else if (final!=null){
+        askGpt(message, final, true)
+    }
+}
 
 
 async function startPlay(message: any, link: string){
@@ -111,6 +238,34 @@ async function searchSong(message: any, songname: string){
     
 }
 
+
+async function playAudio(message: any){
+    const channel = message.member.voice.channel;
+    if (!channel) {
+        return message.reply("Oh, my sultry lover, you must be in a voice channel to talk with me.");
+    }
+    
+    const connection = voiceDiscord.joinVoiceChannel({
+        channelId: channel.id,
+        guildId: message.guildId,
+        adapterCreator: channel.guild.voiceAdapterCreator,
+        selfDeaf: false,
+    })
+    
+
+    setTimeout(async  function(){
+        const dispatcher = createAudioResource('audiofile.wav');
+        connection.subscribe(player)
+        player.play(dispatcher);
+    }, 1000)
+
+
+    
+
+}   
+
+
+
 async function playSong(voiceChannel: any, message: any, options: any) {
     const channel = message.member?.voice.channel;
 
@@ -118,7 +273,8 @@ async function playSong(voiceChannel: any, message: any, options: any) {
     const connection = voiceDiscord.joinVoiceChannel({
         channelId: channel.id,
         guildId: message.guildId,
-        adapterCreator: channel.guild.voiceAdapterCreator
+        adapterCreator: channel.guild.voiceAdapterCreator,
+        selfDeaf: false
     })
         
     const stream = ytdl(queue[0].url, options)
@@ -275,6 +431,11 @@ function runCommand(message: any, command: string){
                 content: `An error occured while skipping.`
             })
         }
+    }else if (command.startsWith('talk')){
+        command = command.replace('talk ', '')
+        askGpt(message, command, true)
+    }else if (command === 'record'){
+        record(message)
     }
 }
 
@@ -351,7 +512,10 @@ client.on('messageCreate', (message) =>{
         else{
             askGpt(message, message.content, false)
         }
-    }else if(message.channelId=='1123703366040690850'){ //TEXT private
+    }else if (message.channelId=='1168159743320264724'){
+        askGpt(message, message.content, true)
+    }
+    else if(message.channelId=='1123703366040690850'){ //TEXT private
         if(message.content == 'can you show me what you look like?'){
             generateImage(message, "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute", false)
         }else if(message.content.startsWith('can you show me you')){
@@ -375,6 +539,8 @@ client.on('messageCreate', (message) =>{
         }else{
             console.log('test')
             askGpt(message, message.content, false)}
+    }else if (message.channelId=='1167940050680545371'){
+        askGpt(message, message.content, true)
     }
 })
 
@@ -493,5 +659,5 @@ async function getImage(message: any, taskID: string){
 }
 
 
-export {generateImage, stablediff}
+export {generateImage, stablediff, talk}
 

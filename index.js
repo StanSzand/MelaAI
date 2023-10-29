@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stablediff = exports.generateImage = void 0;
+exports.talk = exports.stablediff = exports.generateImage = void 0;
 const voice_1 = require("@discordjs/voice");
 const discord_js_1 = __importStar(require("discord.js"));
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -43,8 +43,12 @@ const ytdl_core_1 = __importDefault(require("ytdl-core"));
 const gptAI_1 = require("./gptAI");
 const ytpl_1 = __importDefault(require("ytpl"));
 const youtube_search_1 = __importDefault(require("youtube-search"));
+const fs = __importStar(require("fs"));
+const speech_1 = require("@google-cloud/speech");
+const prism_media_1 = require("prism-media");
+const WavEncoder = require("wav-encoder");
 dotenv_1.default.config();
-var working = false;
+var working = true;
 var stablediff = false;
 exports.stablediff = stablediff;
 var previousPrompt = '';
@@ -52,6 +56,10 @@ const omniKey = process.env.OMNIKEY;
 var queue = [];
 const player = (0, voice_1.createAudioPlayer)();
 var alreadyplaying = false;
+const speechClient = new speech_1.SpeechClient({
+    projectId: 'steel-bliss-403523',
+    keyFilename: './dolphin.json',
+});
 //Discord JS
 const client = new discord_js_1.default.Client({
     intents: [
@@ -64,7 +72,108 @@ const client = new discord_js_1.default.Client({
 });
 client.login(process.env.TOKEN);
 const voiceDiscord = require('@discordjs/voice');
-const { createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { createAudioResource, AudioPlayerStatus, joinVoiceChannel, EndBehaviorType, VoiceConnectionStatus } = require('@discordjs/voice');
+function talk(text, message) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var sdk = require("microsoft-cognitiveservices-speech-sdk");
+        var readline = require("readline");
+        var audioFile = "audiofile.wav";
+        // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+        const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.AZURETOKEN, process.env.AZUREREGION);
+        speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm;
+        const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
+        // The language of the voice that speaks.
+        var speechSynthesisVoiceName = "en-US-JaneNeural";
+        var ssml = `<speak version='1.0' xml:lang='en-US' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts'> \r\n \
+        <voice name='${speechSynthesisVoiceName}'> \r\n \
+            <prosody pitch="15%" rate="20%">\r\n \
+            ${text} \r\n \
+            </prosody>\r\n \
+        </voice> \r\n \
+    </speak>`;
+        var speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+        console.log(`SSML to synthesize: \r\n ${ssml}`);
+        console.log(`Synthesize to: ${audioFile}`);
+        yield speechSynthesizer.speakSsmlAsync(ssml, function (result) {
+            if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+                console.log("SynthesizingAudioCompleted result");
+            }
+            else {
+                console.error("Speech synthesis canceled, " + result.errorDetails +
+                    "\nDid you set the speech resource key and region values?");
+            }
+            speechSynthesizer.close();
+            speechSynthesizer = null;
+        }, function (err) {
+            console.trace("err - " + err);
+            speechSynthesizer.close();
+            speechSynthesizer = null;
+        });
+        playAudio(message);
+    });
+}
+exports.talk = talk;
+function record(message) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const channel = message.member.voice.channel;
+        const connection = voiceDiscord.joinVoiceChannel({
+            channelId: channel.id,
+            guildId: message.guildId,
+            adapterCreator: channel.guild.voiceAdapterCreator,
+            selfDeaf: false
+        });
+        const receiver = connection.receiver.subscribe('631556720338010143', { end: { behavior: EndBehaviorType.AfterSilence, duration: 100 } });
+        const decoder = new prism_media_1.opus.Decoder({ frameSize: 960 * 2, channels: 1, rate: 48000 });
+        const stream = receiver.pipe(decoder).pipe(fs.createWriteStream("./test.pcm"));
+        stream.on("finish", () => {
+            console.log('encoding');
+            var wavConverter = require('wav-converter');
+            var fs = require('fs');
+            var path = require('path');
+            var pcmData = fs.readFileSync(path.resolve(__dirname, './test.pcm'));
+            var wavData = wavConverter.encodeWav(pcmData, {
+                numChannels: 1,
+                sampleRate: 48000
+            });
+            fs.writeFileSync(path.resolve(__dirname, './converted.wav'), wavData);
+            console.log('done writing, logging');
+            checkforMela(message);
+        });
+    });
+}
+function checkforMela(message) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const filename = 'converted.wav';
+        const encoding = 'LINEAR16';
+        const sampleRateHertz = 48000;
+        const languageCode = 'en-US';
+        const config = {
+            encoding: encoding,
+            languageCode: languageCode,
+            enableAutomaticPunctuation: true,
+            sampleRateHertz: sampleRateHertz
+        };
+        const audio = {
+            content: fs.readFileSync(filename).toString('base64'),
+        };
+        const request = {
+            config: config,
+            audio: audio,
+        };
+        // Detects speech in the audio file
+        const [response] = yield speechClient.recognize(request);
+        const transcription = (_a = response.results) === null || _a === void 0 ? void 0 : _a.map(result => result.alternatives)[0];
+        const final = transcription === null || transcription === void 0 ? void 0 : transcription.map(a => a.transcript)[0];
+        console.log(final);
+        if ((final === null || final === void 0 ? void 0 : final.toLocaleLowerCase().startsWith('mella')) || (final === null || final === void 0 ? void 0 : final.toLocaleLowerCase().startsWith('mela')) || (final === null || final === void 0 ? void 0 : final.toLocaleLowerCase().startsWith("hey, mela")) || (final === null || final === void 0 ? void 0 : final.toLocaleLowerCase().startsWith("hey mela"))) {
+            (0, gptAI_1.askGpt)(message, final, true);
+        }
+        else if (final != null) {
+            (0, gptAI_1.askGpt)(message, final, true);
+        }
+    });
+}
 function startPlay(message, link) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -137,6 +246,27 @@ function searchSong(message, songname) {
         startPlay(message, videoUrl);
     });
 }
+function playAudio(message) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const channel = message.member.voice.channel;
+        if (!channel) {
+            return message.reply("Oh, my sultry lover, you must be in a voice channel to talk with me.");
+        }
+        const connection = voiceDiscord.joinVoiceChannel({
+            channelId: channel.id,
+            guildId: message.guildId,
+            adapterCreator: channel.guild.voiceAdapterCreator,
+            selfDeaf: false,
+        });
+        setTimeout(function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                const dispatcher = createAudioResource('audiofile.wav');
+                connection.subscribe(player);
+                player.play(dispatcher);
+            });
+        }, 1000);
+    });
+}
 function playSong(voiceChannel, message, options) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -144,7 +274,8 @@ function playSong(voiceChannel, message, options) {
         const connection = voiceDiscord.joinVoiceChannel({
             channelId: channel.id,
             guildId: message.guildId,
-            adapterCreator: channel.guild.voiceAdapterCreator
+            adapterCreator: channel.guild.voiceAdapterCreator,
+            selfDeaf: false
         });
         const stream = (0, ytdl_core_1.default)(queue[0].url, options);
         const dispatcher = createAudioResource(stream);
@@ -300,6 +431,13 @@ function runCommand(message, command) {
             });
         }
     }
+    else if (command.startsWith('talk')) {
+        command = command.replace('talk ', '');
+        (0, gptAI_1.askGpt)(message, command, true);
+    }
+    else if (command === 'record') {
+        record(message);
+    }
 }
 function pauseSong() {
     player.pause();
@@ -376,6 +514,9 @@ client.on('messageCreate', (message) => {
             (0, gptAI_1.askGpt)(message, message.content, false);
         }
     }
+    else if (message.channelId == '1168159743320264724') {
+        (0, gptAI_1.askGpt)(message, message.content, true);
+    }
     else if (message.channelId == '1123703366040690850') { //TEXT private
         if (message.content == 'can you show me what you look like?') {
             generateImage(message, "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute", false);
@@ -406,6 +547,9 @@ client.on('messageCreate', (message) => {
             console.log('test');
             (0, gptAI_1.askGpt)(message, message.content, false);
         }
+    }
+    else if (message.channelId == '1167940050680545371') {
+        (0, gptAI_1.askGpt)(message, message.content, true);
     }
 });
 client.on('ready', () => {

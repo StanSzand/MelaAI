@@ -34,7 +34,9 @@ function resetAI() {
 exports.resetAI = resetAI;
 const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, function* () {
     var name = '';
-    message.channel.sendTyping();
+    if (!voice) {
+        message.channel.sendTyping();
+    }
     if (message.member.nickname != null) {
         name = message.member.nickname;
     }
@@ -71,10 +73,15 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
                     content: answer
                 }));
         }
-        else
-            (message.reply({
+        else { }
+        if (voice) {
+            (0, index_1.talk)(answer, message);
+        }
+        else {
+            message.reply({
                 content: answer
-            }));
+            });
+        }
     }
     catch (error) {
         console.log(error);
