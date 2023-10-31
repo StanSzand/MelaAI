@@ -13,7 +13,7 @@ import {opus} from 'prism-media'
 const WavEncoder = require("wav-encoder");
 dotenv.config()
 
-var working=true
+var working=false
 var stablediff=false
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
@@ -60,7 +60,7 @@ async function talk(text: string, message: any){
 
     var ssml = `<speak version='1.0' xml:lang='en-US' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts'> \r\n \
         <voice name='${speechSynthesisVoiceName}'> \r\n \
-            <prosody pitch="15%" rate="20%">\r\n \
+            <prosody pitch="8%" rate="15%">\r\n \
             ${text} \r\n \
             </prosody>\r\n \
         </voice> \r\n \
