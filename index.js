@@ -438,6 +438,32 @@ function runCommand(message, command) {
     else if (command === 'record') {
         record(message);
     }
+    else if (command === 'shuffle') {
+        queue = shuffleArray(queue);
+        message.reply({
+            content: "Shuffled your playlist."
+        });
+    }
+    else if (command === 'leave') {
+        leave();
+        message.reply({
+            content: 'You should have no songs left in the queue now'
+        });
+    }
+    else if (command === 'nazi') {
+        runCommand(message, 'https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X');
+    }
+}
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 1; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+function leave() {
+    queue = [];
+    skipSong();
 }
 function pauseSong() {
     player.pause();
