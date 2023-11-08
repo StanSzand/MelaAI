@@ -175,7 +175,7 @@ async function startPlay(message: any, link: string){
       }
   }
 }
-    const channel = message.member?.voice.channel;
+    var channel = message.member.voice.channel;
     if (channel) {
         try{
 
@@ -240,7 +240,7 @@ async function searchSong(message: any, songname: string){
 
 
 async function playAudio(message: any){
-    const channel = message.member.voice.channel;
+    var channel = message.member.voice.channel;
     if (!channel) {
         return message.reply("Oh, my sultry lover, you must be in a voice channel to talk with me.");
     }
@@ -267,7 +267,7 @@ async function playAudio(message: any){
 
 
 async function playSong(voiceChannel: any, message: any, options: any) {
-    const channel = message.member?.voice.channel;
+    var channel = message.member.voice.channel;
 
 
     const connection = voiceDiscord.joinVoiceChannel({
@@ -447,7 +447,7 @@ function runCommand(message: any, command: string){
             content: 'You should have no songs left in the queue now'
         })
     }else if (command === 'nazi'){
-        runCommand(message, 'https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X')
+        runCommand(message, 'play https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X')
     }
 }
 

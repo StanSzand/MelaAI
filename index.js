@@ -175,7 +175,6 @@ function checkforMela(message) {
     });
 }
 function startPlay(message, link) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         console.log(`Added <${link}> to the queue`);
         const fakeCookie = process.env.YTCOOKIE;
@@ -190,7 +189,7 @@ function startPlay(message, link) {
                 }
             }
         };
-        const channel = (_a = message.member) === null || _a === void 0 ? void 0 : _a.voice.channel;
+        var channel = message.member.voice.channel;
         if (channel) {
             try {
                 if (link.includes('playlist')) {
@@ -225,7 +224,7 @@ function startPlay(message, link) {
                     });
                 }
             }
-            catch (_b) {
+            catch (_a) {
                 message.reply({
                     content: `That link is invalid, please make sure it is not age restricted or in a private playlist`
                 });
@@ -248,7 +247,7 @@ function searchSong(message, songname) {
 }
 function playAudio(message) {
     return __awaiter(this, void 0, void 0, function* () {
-        const channel = message.member.voice.channel;
+        var channel = message.member.voice.channel;
         if (!channel) {
             return message.reply("Oh, my sultry lover, you must be in a voice channel to talk with me.");
         }
@@ -268,9 +267,8 @@ function playAudio(message) {
     });
 }
 function playSong(voiceChannel, message, options) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const channel = (_a = message.member) === null || _a === void 0 ? void 0 : _a.voice.channel;
+        var channel = message.member.voice.channel;
         const connection = voiceDiscord.joinVoiceChannel({
             channelId: channel.id,
             guildId: message.guildId,
@@ -451,7 +449,7 @@ function runCommand(message, command) {
         });
     }
     else if (command === 'nazi') {
-        runCommand(message, 'https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X');
+        runCommand(message, 'play https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X');
     }
 }
 function shuffleArray(arr) {
