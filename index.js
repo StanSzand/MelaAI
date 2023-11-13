@@ -291,6 +291,7 @@ function playSong(voiceChannel, message, options) {
                         try {
                             if (connection) {
                                 connection.destroy();
+                                player.removeAllListeners();
                             }
                         }
                         catch (error) {
@@ -381,13 +382,23 @@ function runCommand(message, command) {
                 }
             }
             console.log(queue);
+            // if (queue.length > 30){
+            //     const queueEmbed = new EmbedBuilder()
+            //     .setTitle("🎵 Music Queue 🎵")
+            //     .setDescription(queue.slice(0,30).map(song => `**${song.songNumber}** ${song.title} - ${song.url}`).join('\n'))
+            //     .setColor('#FF0000')
+            // message.reply({
+            //     embeds: [queueEmbed]
+            // })
+            // }else{
             const queueEmbed = new discord_js_1.EmbedBuilder()
                 .setTitle("🎵 Music Queue 🎵")
-                .setDescription(queue.map(song => `**${song.songNumber}** ${song.title} - ${song.url}`).join('\n'))
+                .setDescription(queue.map(song => `**${song.songNumber}** ${song.title}`).join('\n'))
                 .setColor('#FF0000');
             message.reply({
                 embeds: [queueEmbed]
             });
+            // }
         }
         catch (error) {
             message.reply({

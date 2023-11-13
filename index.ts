@@ -297,6 +297,7 @@ async function playSong(voiceChannel: any, message: any, options: any) {
                     try{
                         if(connection){
                             connection.destroy()
+                            player.removeAllListeners()
                         }
                          
                     }catch(error){
@@ -388,14 +389,26 @@ function runCommand(message: any, command: string){
             }
             
             console.log(queue)
-            const queueEmbed = new EmbedBuilder()
-            .setTitle("🎵 Music Queue 🎵")
-            .setDescription(queue.map(song => `**${song.songNumber}** ${song.title} - ${song.url}`).join('\n'))
-            .setColor('#FF0000')
+            // if (queue.length > 30){
+            //     const queueEmbed = new EmbedBuilder()
+            //     .setTitle("🎵 Music Queue 🎵")
+            //     .setDescription(queue.slice(0,30).map(song => `**${song.songNumber}** ${song.title} - ${song.url}`).join('\n'))
+            //     .setColor('#FF0000')
 
-            message.reply({
-                embeds: [queueEmbed]
-            })
+            // message.reply({
+            //     embeds: [queueEmbed]
+            // })
+            // }else{
+                const queueEmbed = new EmbedBuilder()
+                .setTitle("🎵 Music Queue 🎵")
+                .setDescription(queue.map(song => `**${song.songNumber}** ${song.title}`).join('\n'))
+                .setColor('#FF0000')
+
+                message.reply({
+                    embeds: [queueEmbed]
+                })
+            // }
+            
         }catch(error){
             message.reply({
                 content: `The queue seems to be empty. 😔` 
