@@ -215,9 +215,9 @@ async function startPlay(message: any, link: string){
                     content: `Added ${link} to the queue 😃`
                 })
             }
-        }catch{
+        }catch(error){
                 message.reply({
-                    content: `That link is invalid, please make sure it is not age restricted or in a private playlist`
+                    content: `That link is invalid, please make sure it is not age restricted or in a private playlist - ${error}`
                 })
             }
             
@@ -411,7 +411,7 @@ function runCommand(message: any, command: string){
             
         }catch(error){
             message.reply({
-                content: `The queue seems to be empty. 😔` 
+                content: `The queue seems to be empty. 😔    - ${error}`  
             })
             console.log(error)
         }

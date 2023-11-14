@@ -224,9 +224,9 @@ function startPlay(message, link) {
                     });
                 }
             }
-            catch (_a) {
+            catch (error) {
                 message.reply({
-                    content: `That link is invalid, please make sure it is not age restricted or in a private playlist`
+                    content: `That link is invalid, please make sure it is not age restricted or in a private playlist - ${error}`
                 });
             }
         }
@@ -402,7 +402,7 @@ function runCommand(message, command) {
         }
         catch (error) {
             message.reply({
-                content: `The queue seems to be empty. 😔`
+                content: `The queue seems to be empty. 😔    - ${error}`
             });
             console.log(error);
         }
