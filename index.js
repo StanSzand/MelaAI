@@ -388,7 +388,7 @@ function runCommand(message, command) {
             //     .setDescription(queue.slice(0,30).map(song => `**${song.songNumber}** ${song.title} - ${song.url}`).join('\n'))
             //     .setColor('#FF0000')
             // message.reply({
-            //     embeds: [queueEmbed]
+            //     embeds: [queueEmbed] 
             // })
             // }else{
             const queueEmbed = new discord_js_1.EmbedBuilder()
@@ -462,6 +462,9 @@ function runCommand(message, command) {
     else if (command === 'nazi') {
         runCommand(message, 'play https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X');
     }
+    else if (command === 'np') {
+        nowPlaying(message);
+    }
 }
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 1; i--) {
@@ -476,6 +479,12 @@ function leave() {
 }
 function pauseSong() {
     player.pause();
+}
+function nowPlaying(message) {
+    const reply = `Now playing ${queue[0].title}`;
+    message.reply({
+        content: reply
+    });
 }
 function resumeSong() {
     player.unpause();

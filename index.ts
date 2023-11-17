@@ -396,7 +396,7 @@ function runCommand(message: any, command: string){
             //     .setColor('#FF0000')
 
             // message.reply({
-            //     embeds: [queueEmbed]
+            //     embeds: [queueEmbed] 
             // })
             // }else{
                 const queueEmbed = new EmbedBuilder()
@@ -461,6 +461,8 @@ function runCommand(message: any, command: string){
         })
     }else if (command === 'nazi'){
         runCommand(message, 'play https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X')
+    }else if (command === 'np'){
+        nowPlaying(message)
     }
 }
 
@@ -479,6 +481,13 @@ function leave(){
 
 function pauseSong() {
     player.pause();
+}
+
+function nowPlaying(message: any){
+     const reply = `Now playing ${queue[0].title}`
+     message.reply({
+        content: reply
+     })
 }
 
 function resumeSong() {
