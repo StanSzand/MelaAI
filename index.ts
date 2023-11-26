@@ -463,6 +463,13 @@ function runCommand(message: any, command: string){
         runCommand(message, 'play https://www.youtube.com/playlist?list=PLYoXHNEbv4vwMVlpw4Kbxcj7j2I3JNX3X')
     }else if (command === 'np'){
         nowPlaying(message)
+    }else if (command === 'counter'){
+        var check = fs.readFileSync('itis.txt','utf8')
+        message.reply({
+            content: `It is what it is counter: ${check}`
+        })
+    }else if (command === 'communism'){
+        runCommand(message, 'play https://www.youtube.com/playlist?list=PLEC9z34CbIByfimg9B_9Ti8K4NXrBRH0X')
     }
 }
 
@@ -503,6 +510,24 @@ function goTo(index: number){
     skipSong()
 }
 
+function itwit(message: any, reply: boolean){
+    var check = fs.readFileSync('itis.txt','utf8')
+    var newnumber: number = +check
+    newnumber ++
+    writeFile(newnumber.toString(), 'itis.txt')
+    if(reply){
+        message.reply({
+            content: `It is what it is counter: ${newnumber}`
+        })
+    }
+    
+}
+
+function writeFile(content: string, file: string){
+    fs.writeFileSync(file, content)
+}
+
+
 client.on('messageCreate', (message) =>{
     //console.log(message.content)!
     if (!message.content.startsWith(`!p play`)){
@@ -518,6 +543,7 @@ client.on('messageCreate', (message) =>{
         })
         return
     }
+    
 
     if(message.content.startsWith('!p')){
         runCommand(message, message.content.replace("!p ", ""))
@@ -587,6 +613,13 @@ client.on('messageCreate', (message) =>{
             askGpt(message, message.content, false)}
     }else if (message.channelId=='1167940050680545371'){
         askGpt(message, message.content, true)
+    }else if (message.content.startsWith('it is what it is')){
+        itwit(message, true)
+    }else if (message.content.startsWith('welp')){
+        message.reply({
+            content: 'it is what it is'
+        })
+        itwit(message, false)
     }
 })
 
@@ -703,7 +736,6 @@ async function getImage(message: any, taskID: string){
     }, 10000)
    
 }
-
 
 export {generateImage, stablediff, talk}
 

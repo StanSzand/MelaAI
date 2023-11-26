@@ -465,6 +465,15 @@ function runCommand(message, command) {
     else if (command === 'np') {
         nowPlaying(message);
     }
+    else if (command === 'counter') {
+        var check = fs.readFileSync('itis.txt', 'utf8');
+        message.reply({
+            content: `It is what it is counter: ${check}`
+        });
+    }
+    else if (command === 'communism') {
+        runCommand(message, 'play https://www.youtube.com/playlist?list=PLEC9z34CbIByfimg9B_9Ti8K4NXrBRH0X');
+    }
 }
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 1; i--) {
@@ -495,6 +504,20 @@ function skipSong() {
 function goTo(index) {
     queue = queue.splice(index);
     skipSong();
+}
+function itwit(message, reply) {
+    var check = fs.readFileSync('itis.txt', 'utf8');
+    var newnumber = +check;
+    newnumber++;
+    writeFile(newnumber.toString(), 'itis.txt');
+    if (reply) {
+        message.reply({
+            content: `It is what it is counter: ${newnumber}`
+        });
+    }
+}
+function writeFile(content, file) {
+    fs.writeFileSync(file, content);
 }
 client.on('messageCreate', (message) => {
     //console.log(message.content)!
@@ -594,6 +617,15 @@ client.on('messageCreate', (message) => {
     }
     else if (message.channelId == '1167940050680545371') {
         (0, gptAI_1.askGpt)(message, message.content, true);
+    }
+    else if (message.content.startsWith('it is what it is')) {
+        itwit(message, true);
+    }
+    else if (message.content.startsWith('welp')) {
+        message.reply({
+            content: 'it is what it is'
+        });
+        itwit(message, false);
     }
 });
 client.on('ready', () => {
