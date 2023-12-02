@@ -474,6 +474,10 @@ function runCommand(message, command) {
     else if (command === 'communism') {
         runCommand(message, 'play https://www.youtube.com/playlist?list=PLEC9z34CbIByfimg9B_9Ti8K4NXrBRH0X');
     }
+    else if (command.startsWith('gpt')) {
+        command = command.replace('gpt ', '');
+        (0, gptAI_1.askGptNoH)(message, command, false);
+    }
 }
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 1; i--) {

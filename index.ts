@@ -2,7 +2,7 @@ import { PlayerSubscription, createAudioPlayer } from '@discordjs/voice'
 import DiscordJS, { Client, EmbedBuilder, GatewayIntentBits, Guild, VoiceChannel } from 'discord.js'
 import dotenv from 'dotenv'
 import ytdl from 'ytdl-core';
-import {resetAI, askGpt} from './gptAI'
+import {resetAI, askGpt, askGptNoH} from './gptAI'
 import ytpl from 'ytpl'
 import search from 'youtube-search'
 import * as fs from 'fs'
@@ -93,7 +93,7 @@ async function talk(text: string, message: any){
 
 async function record(message: any){
     const channel = message.member.voice.channel
-
+    
     const connection = voiceDiscord.joinVoiceChannel({
         channelId: channel.id,
         guildId: message.guildId,
@@ -470,6 +470,9 @@ function runCommand(message: any, command: string){
         })
     }else if (command === 'communism'){
         runCommand(message, 'play https://www.youtube.com/playlist?list=PLEC9z34CbIByfimg9B_9Ti8K4NXrBRH0X')
+    }else if (command.startsWith('gpt')){
+        command = command.replace('gpt ', '')
+        askGptNoH(message, command, false)
     }
 }
 

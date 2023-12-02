@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.askGpt = exports.resetAI = void 0;
+exports.askGptNoH = exports.askGpt = exports.resetAI = void 0;
 const index_1 = require("./index");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -88,6 +88,55 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.askGpt = askGpt;
+const askGptNoH = (message, req, voice) => __awaiter(void 0, void 0, void 0, function* () {
+    var name = '';
+    if (!voice) {
+        message.channel.sendTyping();
+    }
+    if (message.member.nickname != null) {
+        name = message.member.nickname;
+    }
+    else {
+        name = message.member.displayName.toString();
+    }
+    var request = [{ role: 'system', content: '' }, {
+            role: 'user',
+            content: req + " - said " + name
+        }];
+    console.log(request); // log for comparison
+    try {
+        const response = yield openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: request,
+            max_tokens: 256 * 2
+        });
+        answer = response.data.choices[0].message.content;
+        console.log(answer);
+        if (req == 'What are you doing right now?' || req == 'What are you up to?' || req == 'Hey mela, what are you up to?') {
+            if (index_1.stablediff) {
+                var prompt = '(AI girl named Mela:1.1), light grey hair, blue eyes, B sized breasts, overwhelmingly cute, ' + answer.toString();
+                (0, index_1.generateImage)(message, prompt, false);
+            }
+            else
+                (message.reply({
+                    content: answer
+                }));
+        }
+        else { }
+        if (voice) {
+            (0, index_1.talk)(answer, message);
+        }
+        else {
+            message.reply({
+                content: answer
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+exports.askGptNoH = askGptNoH;
 function createPrompt() {
     var prompt = historyAI.concat(convoLog.slice(count, convoLog.length));
     if (count > -7) {
