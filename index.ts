@@ -473,6 +473,9 @@ function runCommand(message: any, command: string){
     }else if (command.startsWith('gpt')){
         command = command.replace('gpt ', '')
         askGptNoH(message, command, false)
+    }else if (command.startsWith('remove')){
+        var index = parseInt(command.replace('remove ', ''))
+        removeSong(message, index)
     }
 }
 
@@ -512,6 +515,14 @@ function goTo(index: number){
     queue = queue.splice(index)
     skipSong()
 }
+
+function removeSong(message: any, index: number){
+    queue = queue.splice(index-1, 1)
+    message.reply({
+        content: `Removed the song at ${index}`
+    })
+}
+
 
 function itwit(message: any, reply: boolean){
     var check = fs.readFileSync('itis.txt','utf8')

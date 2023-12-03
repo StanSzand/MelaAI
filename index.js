@@ -478,6 +478,10 @@ function runCommand(message, command) {
         command = command.replace('gpt ', '');
         (0, gptAI_1.askGptNoH)(message, command, false);
     }
+    else if (command.startsWith('remove')) {
+        var index = parseInt(command.replace('remove ', ''));
+        removeSong(message, index);
+    }
 }
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 1; i--) {
@@ -508,6 +512,12 @@ function skipSong() {
 function goTo(index) {
     queue = queue.splice(index);
     skipSong();
+}
+function removeSong(message, index) {
+    queue = queue.splice(index - 1, 1);
+    message.reply({
+        content: `Removed the song at ${index}`
+    });
 }
 function itwit(message, reply) {
     var check = fs.readFileSync('itis.txt', 'utf8');
