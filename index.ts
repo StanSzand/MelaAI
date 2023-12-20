@@ -578,9 +578,9 @@ client.on('messageCreate', (message) =>{
         askGpt(message, message.content, false)
     }else if(message.channelId=='1123752426218987601'){ //TEXT kck
         if(message.content == 'can you show me what you look like?'){
-            generateImage(message, "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute", false)
+            generateImage(message, "(AI catgirl named Mela:1.1), light grey hair, cat ears, cat tail, blue eyes, B sized breasts, overwhelmingly cute,", false)
         }else if(message.content.startsWith('can you show me you')){
-            var prompt = message.content.replace("can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
+            var prompt = message.content.replace("can you show me you", "(AI catgirl named Mela:1.1), light grey hair, cat ears, cat tail, blue eyes, B sized breasts, overwhelmingly cute, ")
             console.log(prompt)
             generateImage(message, prompt, false)
         }else if(message.content.startsWith('can you generate')){
@@ -603,9 +603,9 @@ client.on('messageCreate', (message) =>{
     }
     else if(message.channelId=='1123703366040690850'){ //TEXT private
         if(message.content == 'can you show me what you look like?'){
-            generateImage(message, "(AI girl named Mela:1.1), light grey hair, blue eyes, overwhelmingly cute", false)
+            generateImage(message, "(AI catgirl named Mela:1.1), light grey hair, cat ears, cat tail, blue eyes, B sized breasts, overwhelmingly cute,", false)
         }else if(message.content.startsWith('can you show me you')){
-            var prompt = message.content.replace("can you show me you", "(AI girl named Mela:1.1), light grey hair, blue eyes, ")
+            var prompt = message.content.replace("can you show me you", "(AI catgirl named Mela:1.1), light grey hair, cat ears, cat tail, blue eyes, B sized breasts, overwhelmingly cute, ")
             console.log(prompt)
             generateImage(message, prompt, false)
         }else if(message.content.startsWith('can you generate')){
