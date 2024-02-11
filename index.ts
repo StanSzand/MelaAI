@@ -307,7 +307,7 @@ async function playSong(voiceChannel: any, message: any, options: any) {
             }
         })
     }
-    ;
+    
 
         
         

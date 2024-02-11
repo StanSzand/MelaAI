@@ -301,7 +301,6 @@ function playSong(voiceChannel, message, options) {
                 }
             });
         }
-        ;
     });
 }
 //Commands
