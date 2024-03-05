@@ -63,7 +63,8 @@ const askGpt = (message, req, voice) => __awaiter(void 0, void 0, void 0, functi
             body: JSON.stringify({
                 "model": modelUsed,
                 "messages": request,
-                "max_tokens": 256 + 128
+                "max_tokens": 456,
+                "finish_reason": "stop"
             })
         });
         var answer = yield response.json();
