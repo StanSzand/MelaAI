@@ -5,7 +5,6 @@ import {resetAI, askGpt} from './gptAI'
 import ytpl from 'ytpl'
 import search from 'youtube-search'
 import * as fs from 'fs'
-import { SpeechClient } from '@google-cloud/speech';
 import {opus} from 'prism-media'
 
 
@@ -16,12 +15,7 @@ var working=false
 var stablediff=false
 var previousPrompt = ''
 const omniKey = process.env.OMNIKEY
-var queue:any[] = []
-var alreadyplaying = false
-const speechClient = new SpeechClient({
-    projectId: 'steel-bliss-403523',
-    keyFilename: './dolphin.json',
-  });
+
 
 
 //Discord JS

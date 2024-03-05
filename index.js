@@ -40,7 +40,6 @@ const discord_js_1 = __importStar(require("discord.js"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const gptAI_1 = require("./gptAI");
 const fs = __importStar(require("fs"));
-const speech_1 = require("@google-cloud/speech");
 const WavEncoder = require("wav-encoder");
 dotenv_1.default.config();
 var working = false;
@@ -48,12 +47,6 @@ var stablediff = false;
 exports.stablediff = stablediff;
 var previousPrompt = '';
 const omniKey = process.env.OMNIKEY;
-var queue = [];
-var alreadyplaying = false;
-const speechClient = new speech_1.SpeechClient({
-    projectId: 'steel-bliss-403523',
-    keyFilename: './dolphin.json',
-});
 //Discord JS
 const client = new discord_js_1.default.Client({
     intents: [
