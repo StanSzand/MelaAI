@@ -115,6 +115,17 @@ function runCommand(message, command) {
             content: `It is what it is counter: ${check}`
         });
     }
+    else if (command.startsWith('change')) {
+        if (message.author.id === '631556720338010143') {
+            command = command.replace('change ', '');
+            (0, gptAI_1.changeModel)(message, command);
+        }
+        else {
+            message.reply({
+                content: 'Insufficient perms'
+            });
+        }
+    }
 }
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 1; i--) {

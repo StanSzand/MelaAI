@@ -1,11 +1,8 @@
 import DiscordJS, { Client, EmbedBuilder, GatewayIntentBits, Guild, VoiceChannel } from 'discord.js'
 import dotenv from 'dotenv'
-import ytdl from 'ytdl-core';
-import {resetAI, askGpt} from './gptAI'
-import ytpl from 'ytpl'
-import search from 'youtube-search'
+import {resetAI, askGpt, changeModel} from './gptAI'
 import * as fs from 'fs'
-import {opus} from 'prism-media'
+
 
 
 const WavEncoder = require("wav-encoder");
@@ -89,6 +86,15 @@ function runCommand(message: any, command: string){
         message.reply({
             content: `It is what it is counter: ${check}`
         })
+    }else if (command.startsWith('change')){
+        if (message.author.id === '631556720338010143'){
+            command = command.replace('change ', '')
+            changeModel(message, command)
+        }else{
+            message.reply({
+                content: 'Insufficient perms'
+            })
+        }
     }
 }
 
