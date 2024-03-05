@@ -1,4 +1,5 @@
 .env
+node_modules
 index.ts
 backp2.ts
 backup2.js
